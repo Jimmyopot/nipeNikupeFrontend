@@ -15,6 +15,7 @@ export function HeroSection() {
   return (
     <Box
       component="section"
+      id="home"
       sx={{
         position: "relative",
         minHeight: "100vh",

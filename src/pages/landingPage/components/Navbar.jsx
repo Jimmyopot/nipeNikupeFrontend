@@ -27,7 +27,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <AppBar position="fixed" sx={{ bgcolor: 'background.paper', backdropFilter: 'blur(8px)', borderBottom: 1, borderColor: 'divider', boxShadow: 0 }}>
+    <AppBar position="fixed" sx={{ bgcolor: 'background.main', backdropFilter: 'blur(8px)', borderBottom: 1, borderColor: 'divider', boxShadow: 0 }}>
       <Toolbar sx={{ minHeight: 64, display: 'flex', justifyContent: 'space-between' }}>
         {/* Logo */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
