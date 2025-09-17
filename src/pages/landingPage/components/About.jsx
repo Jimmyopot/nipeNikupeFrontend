@@ -9,7 +9,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import FlashOnIcon from "@mui/icons-material/FlashOn";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import chef from "../../../assets/chef.jpg";
+import delivery from "../../../assets/delivery.jpg";
 
 export function AboutSection() {
   return (
@@ -96,7 +96,7 @@ export function AboutSection() {
               }}
             >
               <img
-                src={chef}
+                src={delivery}
                 alt="About NipeNikupe"
                 style={{
                   width: "100%",

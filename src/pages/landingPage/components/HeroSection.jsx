@@ -1,17 +1,50 @@
-
-import React from "react";
+import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import HandshakeIcon from "@mui/icons-material/Handshake";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
-import GroupIcon from "@mui/icons-material/Group";
-import Divider from "@mui/material/Divider";
-// import Link from "next/link";
-import backgroundPattern from "../../../assets/abstract-network-pattern-connecting-people.jpg";
-
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import plumber from "../../../assets/plumber.jpg";
+import engineers from "../../../assets/engineers.jpg";
+import doctor from "../../../assets/doctor.jpg";
 
 export function HeroSection() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const professionImages = [
+    {
+      src: doctor,
+      alt: "Doctor examining a patient",
+    },
+    {
+      src: engineers,
+      alt: "Engineers at work",
+    },
+    {
+      src: plumber,
+      alt: "Plumber fixing a sink",
+    },
+  ];
+
+  // Auto-rotate images every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % professionImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [professionImages.length]);
+
+  // const nextImage = () => {
+  //   setCurrentImageIndex((prev) => (prev + 1) % professionImages.length);
+  // };
+
+  // const prevImage = () => {
+  //   setCurrentImageIndex(
+  //     (prev) => (prev - 1 + professionImages.length) % professionImages.length
+  //   );
+  // };
+
   return (
     <Box
       component="section"
@@ -21,168 +54,293 @@ export function HeroSection() {
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        // background: "linear-gradient(135deg, var(--background), var(--muted))",
+        backgroundColor: "background.main",
         pt: 8,
-        background:
-          "linear-gradient(135deg, #f8fafc 0%, #e0e7ef 50%, #f8fafc 100%)",
+        px: 12,
       }}
     >
-      {/* Background Pattern */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          // backgroundImage: "url()",
-          backgroundImage: `url(${backgroundPattern})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.1,
-          zIndex: 0,
-        }}
-      />
-
-      <Box sx={{ position: "relative", zIndex: 1, width: "100%" }}>
+      <Box sx={{ width: "100%", maxWidth: "100vw", px: 4, py: 10, mx: "auto" }}>
         <Box
-          sx={{ maxWidth: 900, mx: "auto", textAlign: "center", px: 2, py: 10 }}
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+            gap: 12,
+            alignItems: "center",
+            maxWidth: "112rem",
+            mx: "auto",
+          }}
         >
-          {/* Logo/Brand */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 2,
-              mb: 4,
-            }}
-          >
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* New Arrival Badge */}
+            {/* <Box sx={{ display: "inline-block" }}>
+              <Box
+                sx={{
+                  backgroundColor: "primary.main",
+                  opacity: 0.1,
+                  color: "primary.main",
+                  px: 2,
+                  py: 1,
+                  borderRadius: 999,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  letterSpacing: 1,
+                }}
+              >
+                NEW PLATFORM...
+              </Box>
+            </Box> */}
+
+            {/* Main Headline */}
+            <Box>
+              <Typography
+                variant="h1"
+                sx={{
+                  fontSize: { xs: 40, md: 56, lg: 72 },
+                  fontWeight: "bold",
+                  lineHeight: 1.1,
+                }}
+              >
+                Trade your talent.{" "}
+                <Box component="span" sx={{ color: "primary.main" }}>
+                  Find your match.
+                </Box>{" "}
+                <Box component="span" sx={{ color: "secondary.main" }}>
+                  Build your future.
+                </Box>
+              </Typography>
+            </Box>
+
+            {/* Description */}
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: { xs: 18, md: 20 },
+                color: "text.secondary",
+                lineHeight: 1.7,
+                maxWidth: 480,
+              }}
+            >
+              Connect with skilled individuals in your community. Exchange your
+              expertise for the services you need. No money required—just
+              talent, trust, and mutual growth.
+            </Typography>
+
+            {/* CTA Buttons */}
             <Box
               sx={{
-                p: 1.5,
-                bgcolor: "primary.main",
-                borderRadius: "50%",
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
               }}
             >
-              <HandshakeIcon
-                sx={{ color: "primary.contrastText", width: 32, height: 32 }}
-              />
+              <Button
+                // component={Link}
+                href="/register"
+                size="large"
+                variant="contained"
+                sx={{
+                  fontSize: 18,
+                  px: 4,
+                  py: 2,
+                  backgroundColor: "primary.main",
+                  "&:hover": { backgroundColor: "primary.dark" },
+                }}
+                endIcon={<ArrowRightAltIcon sx={{ ml: 1, fontSize: 24 }} />}
+              >
+                Get Started
+              </Button>
+              <Button
+                component="a"
+                href="#how-it-works"
+                size="large"
+                variant="outlined"
+                sx={{
+                  fontSize: 18,
+                  px: 4,
+                  py: 2,
+                  backgroundColor: "transparent",
+                }}
+              >
+                See How It Works
+              </Button>
             </Box>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: "bold", color: "text.primary" }}
-            >
-              NipeNikupe
-            </Typography>
           </Box>
 
-          {/* Main Headline */}
-          <Typography
-            variant="h2"
-            sx={{
-              fontWeight: "bold",
-              mb: 3,
-              lineHeight: 1.1,
-              fontSize: { xs: "2.5rem", md: "4rem" },
-            }}
-          >
-            Trade your talent.{" "}
-            <Box component="span" sx={{ color: "primary.main" }}>
-              Find your match.
-            </Box>{" "}
-            <Box component="span" sx={{ color: "secondary.main" }}>
-              Build your future.
-            </Box>
-          </Typography>
-
-          {/* Subheading */}
-          <Typography
-            variant="h6"
-            sx={{
-              color: "text.secondary",
-              mb: 4,
-              maxWidth: 700,
-              mx: "auto",
-              fontWeight: 400,
-              lineHeight: 1.6,
-            }}
-          >
-            Connect with skilled individuals in your community. Exchange your
-            expertise for the services you need. No money required—just talent,
-            trust, and mutual growth.
-          </Typography>
-
-          {/* CTA Buttons */}
           <Box
             sx={{
+              position: "relative",
               display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              gap: 2,
-              justifyContent: "center",
-              alignItems: "center",
-              mb: 6,
+              justifyContent: { xs: "center", lg: "flex-end" },
             }}
           >
-            <Button
-              size="large"
-              variant="contained"
-              color="primary"
-              sx={{
-                fontSize: "1.125rem",
-                px: 5,
-                py: 2,
-                fontWeight: 600,
-                textTransform: "none",
-              }}
-              // component={Link}
-              href="/register"
-              endIcon={<ArrowRightAltIcon sx={{ ml: 1 }} />}
-            >
-              Get Started
-            </Button>
-            <Button
-              size="large"
-              variant="outlined"
-              color="primary"
-              sx={{
-                fontSize: "1.125rem",
-                px: 5,
-                py: 2,
-                fontWeight: 600,
-                textTransform: "none",
-                bgcolor: "transparent",
-              }}
-              href="#how-it-works"
-            >
-              How It Works
-            </Button>
-          </Box>
+            <Box sx={{ position: "relative" }}>
+              {/* Main Image Container with Circular Background */}
+              <Box
+                sx={{
+                  position: "relative",
+                  width: { xs: 320, md: 384 },
+                  height: { xs: 320, md: 384 },
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundColor: "primary.main",
+                    opacity: 0.2,
+                    borderRadius: "50%",
+                    transform: "scale(1.15)",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "relative",
+                    zIndex: 10,
+                    width: "90%",
+                    height: "90%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    p: 4,
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={
+                      professionImages[currentImageIndex].src ||
+                      "/placeholder.svg"
+                    }
+                    alt={professionImages[currentImageIndex].alt}
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: 4,
+                      boxShadow: 8,
+                      transition: "all 0.5s ease-in-out",
+                    }}
+                  />
+                </Box>
+              </Box>
 
-          {/* Social Proof */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 4,
-              color: "text.secondary",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <GroupIcon sx={{ width: 20, height: 20 }} />
-              <Typography variant="body2">5,000+ active members</Typography>
-            </Box>
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ display: { xs: "none", sm: "block" }, mx: 2, height: 24 }}
-            />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <HandshakeIcon sx={{ width: 20, height: 20 }} />
-              <Typography variant="body2">
-                10,000+ successful exchanges
-              </Typography>
+              {/* Vertical Navigation Dots */}
+              {/* <Box
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  top: "50%",
+                  transform: "translateX(48px) translateY(-50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                }}
+              >
+                {professionImages.map((_, index) => (
+                  <Box
+                    key={index}
+                    component="button"
+                    onClick={() => setCurrentImageIndex(index)}
+                    aria-label={`View ${professionImages[index].alt}`}
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      transition: "all 0.3s",
+                      backgroundColor:
+                        index === currentImageIndex
+                          ? "primary.main"
+                          : "primary.main",
+                      opacity: index === currentImageIndex ? 1 : 0.3,
+                      transform:
+                        index === currentImageIndex
+                          ? "scale(1.25)"
+                          : "scale(1)",
+                      mb: 0.5,
+                      border: "none",
+                      cursor: "pointer",
+                      "&:hover": { opacity: 0.5 },
+                    }}
+                  />
+                ))}
+              </Box> */}
+              {/* Vertical Navigation Dots */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  top: "50%",
+                  transform: "translateX(48px) translateY(-50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                }}
+              >
+                {professionImages.map((_, index) => (
+                  <Box
+                    key={index}
+                    component="button"
+                    onClick={() => setCurrentImageIndex(index)}
+                    aria-label={`View ${professionImages[index].alt}`}
+                    sx={{
+                      width: 8, // smaller size
+                      height: 8,
+                      borderRadius: "50%", // perfectly round
+                      transition: "all 0.3s",
+                      backgroundColor: "primary.main",
+                      opacity: index === currentImageIndex ? 1 : 0.3,
+                      transform:
+                        index === currentImageIndex ? "scale(1.4)" : "scale(1)",
+                      border: "none",
+                      cursor: "pointer",
+                      p: 0, // remove extra button padding
+                      "&:hover": { opacity: 0.6 },
+                    }}
+                  />
+                ))}
+              </Box>
+
+              {/* Navigation Arrows */}
+              {/* <Box
+                component="button"
+                onClick={prevImage}
+                aria-label="Previous image"
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  top: "25%",
+                  transform: "translateX(48px) translateY(-50%)",
+                  p: 1,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  boxShadow: 3,
+                  "&:hover": { backgroundColor: "grey.100" },
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                <KeyboardArrowUpIcon sx={{ fontSize: 20 }} />
+              </Box>
+              <Box
+                component="button"
+                onClick={nextImage}
+                aria-label="Next image"
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  bottom: "25%",
+                  transform: "translateX(48px) translateY(50%)",
+                  p: 1,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  boxShadow: 3,
+                  "&:hover": { backgroundColor: "grey.100" },
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                <KeyboardArrowDownIcon sx={{ fontSize: 20 }} />
+              </Box> */}
             </Box>
           </Box>
         </Box>
