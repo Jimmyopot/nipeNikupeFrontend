@@ -5,9 +5,10 @@ import Typography from "@mui/material/Typography";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import plumber from "../../../assets/plumber.jpg";
-import engineers from "../../../assets/engineers.jpg";
-import doctor from "../../../assets/doctor.jpg";
+import plumber from "../../../assets/plumber.png";
+import engineers from "../../../assets/engineers.png";
+import doctor from "../../../assets/doctor.png";
+import photographer from "../../../assets/photographer.png";
 
 export function HeroSection() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -24,6 +25,10 @@ export function HeroSection() {
     {
       src: plumber,
       alt: "Plumber fixing a sink",
+    },
+    {
+      src: photographer,
+      alt: "Photographer capturing a moment",
     },
   ];
 
@@ -57,7 +62,8 @@ export function HeroSection() {
         // background: "linear-gradient(135deg, var(--background), var(--muted))",
         backgroundColor: "background.main",
         pt: 8,
-        px: 12,
+        px: { xs: 0 , md: 8, lg: 12 },
+        overflow: "hidden",
       }}
     >
       <Box sx={{ width: "100%", maxWidth: "100vw", px: 4, py: 10, mx: "auto" }}>

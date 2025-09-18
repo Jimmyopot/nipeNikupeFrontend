@@ -9,7 +9,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import FlashOnIcon from "@mui/icons-material/FlashOn";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import delivery from "../../../assets/delivery.jpg";
+import delivery from "../../../assets/delivery.png";
 
 export function AboutSection() {
   return (

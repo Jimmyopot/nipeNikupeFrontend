@@ -7,7 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import HandshakeIcon from "@mui/icons-material/Handshake";
 import GroupIcon from "@mui/icons-material/Group";
 import StarIcon from "@mui/icons-material/Star";
-import carpenter from "../../../assets/carpenter.jpg";
+import carpenter from "../../../assets/carpenter.png";
 
 const testimonials = [
   {
