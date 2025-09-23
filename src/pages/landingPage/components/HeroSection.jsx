@@ -9,6 +9,7 @@ import plumber from "../../../assets/plumber.png";
 import engineers from "../../../assets/engineers.png";
 import doctor from "../../../assets/doctor.png";
 import photographer from "../../../assets/photographer.png";
+import { Link } from "react-router-dom";
 
 export function HeroSection() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -62,7 +63,7 @@ export function HeroSection() {
         // background: "linear-gradient(135deg, var(--background), var(--muted))",
         backgroundColor: "background.main",
         pt: 8,
-        px: { xs: 0 , md: 8, lg: 12 },
+        px: { xs: 0, md: 8, lg: 12 },
         overflow: "hidden",
       }}
     >
@@ -153,6 +154,8 @@ export function HeroSection() {
                   "&:hover": { backgroundColor: "primary.dark" },
                 }}
                 endIcon={<ArrowRightAltIcon sx={{ ml: 1, fontSize: 24 }} />}
+                component={Link}
+                to="/signUp"
               >
                 Get Started
               </Button>

@@ -63,7 +63,7 @@ export function AboutSection() {
               variant="body1"
               sx={{ color: "text.secondary", mb: 2, lineHeight: 1.7 }}
             >
-              Founded in 2024, NipeNikupe started when our founders realized
+              Founded in 2025, NipeNikupe started when our founders realized
               that traditional hiring and service platforms often create
               barriers between talented individuals and those who need their
               skills.

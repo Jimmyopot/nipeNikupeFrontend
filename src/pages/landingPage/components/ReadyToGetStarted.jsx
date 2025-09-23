@@ -220,7 +220,7 @@ export function ReadyToGetStarted() {
 
         {/* Right Side - Content */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 0 }}>
             <Typography
               sx={{
                 color: "success.main",

@@ -75,7 +75,7 @@ export function Footer() {
         <Divider sx={{ borderColor: 'grey.800', mt: 8, mb: 4 }} />
         <Box sx={{ textAlign: 'center', color: 'grey.500', fontSize: 14 }}>
           <Typography>
-            &copy; 2024 NipeNikupe. All rights reserved. | Privacy Policy | Terms of Service
+            &copy; 2025 NipeNikupe. All rights reserved. | Privacy Policy | Terms of Service
           </Typography>
         </Box>
       </Box>
