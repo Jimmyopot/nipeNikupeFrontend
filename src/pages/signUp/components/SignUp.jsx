@@ -24,6 +24,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
 import VisibilityIcon from "@mui/icons-material/Visibility"
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff"
 import AddIcon from "@mui/icons-material/Add"
+import PersonalInfo from "./PersonalInfo"
 
 const skillCategories = {
   Technology: ["Web Development", "Mobile Apps", "QA Testing", "DevOps", "Data Analysis", "UI/UX Design"],
@@ -226,7 +227,18 @@ export default function NipeNikupeRegistration() {
             </CardHeader>
             <CardContent sx={{ p: 4 }}>
               {/* Step 1: Personal Information */}
-              {currentStep === 1 && (
+              <PersonalInfo 
+                currentStep={currentStep}
+                formData={formData}
+                setFormData={setFormData}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                showConfirmPassword={showConfirmPassword}
+                setShowConfirmPassword={setShowConfirmPassword}
+                passwordStrength={passwordStrength}
+                strengthLabels={strengthLabels}
+              />
+              {/* {currentStep === 1 && (
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                   <TextField
                     fullWidth
@@ -360,7 +372,7 @@ export default function NipeNikupeRegistration() {
                       </Typography>
                     )}
                 </Box>
-              )}
+              )} */}
 
               {/* Step 2: Location */}
               {currentStep === 2 && (
