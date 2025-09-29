@@ -41,7 +41,7 @@ export default function NipeNikupeRegistration() {
   const [customSkill, setCustomSkill] = useState("");
   const [availability, setAvailability] = useState({});
 
-  const { signup, signupResp } = useSelector((state) => state.SignUpReducer);
+  const { signup, signupResp, availableDate, availableTime } = useSelector((state) => state.SignUpReducer);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -53,8 +53,8 @@ export default function NipeNikupeRegistration() {
     cityOrTown: "",
     localityOrArea: "",
     skills: [],
-    availableDate: "2025-09-22T07:46:16.267Z",
-    availableTime: "16:00:00",
+    availableDate: "",
+    availableTime: "",
   });
 
   const totalSteps = 4;
@@ -109,7 +109,8 @@ export default function NipeNikupeRegistration() {
     const payload = {
       ...cleanFormData,
       skills: selectedSkills,
-      // availability,
+      availableDate,
+      availableTime,
     };
 
     dispatch(

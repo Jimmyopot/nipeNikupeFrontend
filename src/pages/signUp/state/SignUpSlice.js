@@ -4,6 +4,8 @@ import { signupAction } from "./SignUpActions";
 const initialState = {
   signup: false,
   signupResp: null,
+  availableDate: "",
+  availableTime: "",
 };
 
 const signUpSlice = createSlice({
@@ -11,6 +13,12 @@ const signUpSlice = createSlice({
   initialState,
   reducers: {
     // Define your synchronous reducers here if needed
+    setAvailableDate: (state, action) => {
+      state.availableDate = action.payload;
+    },
+    setAvailableTime: (state, action) => {
+      state.availableTime = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // Handle async actions here if needed
@@ -30,6 +38,6 @@ const signUpSlice = createSlice({
   },
 });
 
-export default signUpSlice.reducer;
+export const { setAvailableDate, setAvailableTime } = signUpSlice.actions;
 
-// export const { actions: signUpActions } = signUpSlice;
+export default signUpSlice.reducer;
