@@ -1,98 +1,44 @@
-import React, { useState } from "react";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardHeader from "@mui/material/CardHeader";
-import TextField from "@mui/material/TextField";
-import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import LinearProgress from "@mui/material/LinearProgress";
-import Chip from "@mui/material/Chip";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import PersonIcon from "@mui/icons-material/Person";
-import PlaceIcon from "@mui/icons-material/Place";
-import WorkIcon from "@mui/icons-material/Work";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-// import VisibilityIcon from "@mui/icons-material/Visibility";
-// import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import AddIcon from "@mui/icons-material/Add";
-import PersonalInfo from "./PersonalInfo";
+import React, { useState } from "react"
+import Button from "@mui/material/Button"
+import Card from "@mui/material/Card"
+import CardContent from "@mui/material/CardContent"
+import CardHeader from "@mui/material/CardHeader"
+import TextField from "@mui/material/TextField"
+import FormControl from "@mui/material/FormControl"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import Checkbox from "@mui/material/Checkbox"
+import Select from "@mui/material/Select"
+import MenuItem from "@mui/material/MenuItem"
+import InputLabel from "@mui/material/InputLabel"
+import LinearProgress from "@mui/material/LinearProgress"
+import Chip from "@mui/material/Chip"
+import Typography from "@mui/material/Typography"
+import Box from "@mui/material/Box"
+import IconButton from "@mui/material/IconButton"
+import InputAdornment from "@mui/material/InputAdornment"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import PersonIcon from "@mui/icons-material/Person"
+import PlaceIcon from "@mui/icons-material/Place"
+import WorkIcon from "@mui/icons-material/Work"
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
+import VisibilityIcon from "@mui/icons-material/Visibility"
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff"
+import AddIcon from "@mui/icons-material/Add"
+import PersonalInfo from "./PersonalInfo"
 
 const skillCategories = {
-  Technology: [
-    "Web Development",
-    "Mobile Apps",
-    "QA Testing",
-    "DevOps",
-    "Data Analysis",
-    "UI/UX Design",
-  ],
-  Creative: [
-    "Photography",
-    "Video Editing",
-    "Graphic Design",
-    "Content Writing",
-    "Music Production",
-    "Animation",
-  ],
-  Education: [
-    "Tutoring",
-    "Language Teaching",
-    "Exam Prep",
-    "Workshop Facilitation",
-    "Curriculum Design",
-  ],
-  Lifestyle: [
-    "Cooking",
-    "Fitness Coaching",
-    "Gardening",
-    "Interior Design",
-    "Personal Styling",
-  ],
-  "Professional Services": [
-    "Legal Advice",
-    "Accounting",
-    "Career Coaching",
-    "Business Consulting",
-    "Marketing",
-  ],
+  Technology: ["Web Development", "Mobile Apps", "QA Testing", "DevOps", "Data Analysis", "UI/UX Design"],
+  Creative: ["Photography", "Video Editing", "Graphic Design", "Content Writing", "Music Production", "Animation"],
+  Education: ["Tutoring", "Language Teaching", "Exam Prep", "Workshop Facilitation", "Curriculum Design"],
+  Lifestyle: ["Cooking", "Fitness Coaching", "Gardening", "Interior Design", "Personal Styling"],
+  "Professional Services": ["Legal Advice", "Accounting", "Career Coaching", "Business Consulting", "Marketing"],
   Others: ["Custom Skill"],
-};
+}
 
-const countries = [
-  "Kenya",
-  "Uganda",
-  "Tanzania",
-  "Rwanda",
-  "Nigeria",
-  "Ghana",
-  "South Africa",
-  "Other",
-];
+const countries = ["Kenya", "Uganda", "Tanzania", "Rwanda", "Nigeria", "Ghana", "South Africa", "Other"]
 
-const timeSlots = [
-  "Morning (6AM-12PM)",
-  "Afternoon (12PM-6PM)",
-  "Evening (6PM-10PM)",
-  "Night (10PM-6AM)",
-];
-const weekDays = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+const timeSlots = ["Morning (6AM-12PM)", "Afternoon (12PM-6PM)", "Evening (6PM-10PM)", "Night (10PM-6AM)"]
+const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 export default function NipeNikupeRegistration() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -282,6 +228,7 @@ export default function NipeNikupeRegistration() {
               </Typography>
             </CardHeader>
             <CardContent sx={{ p: 4 }}>
+            
               {/* Step 1: Personal Information */}
               <PersonalInfo
                 currentStep={currentStep}
@@ -296,215 +243,28 @@ export default function NipeNikupeRegistration() {
               />
 
               {/* Step 2: Location */}
-              {currentStep === 2 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  <FormControl
-                    fullWidth
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                  >
-                    <InputLabel>Country</InputLabel>
-                    <Select
-                      value={formData.country}
-                      label="Country"
-                      onChange={(e) =>
-                        setFormData({ ...formData, country: e.target.value })
-                      }
-                    >
-                      {countries.map((country) => (
-                        <MenuItem key={country} value={country}>
-                          {country}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <TextField
-                    fullWidth
-                    label="City/Town"
-                    placeholder="Enter your city or town"
-                    value={formData.city}
-                    onChange={(e) =>
-                      setFormData({ ...formData, city: e.target.value })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                  />
-
-                  <TextField
-                    fullWidth
-                    label="Locality/Area"
-                    placeholder="Enter your specific area or neighborhood"
-                    value={formData.locality}
-                    onChange={(e) =>
-                      setFormData({ ...formData, locality: e.target.value })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                  />
-                </Box>
-              )}
-
+              <Location 
+                currentStep={currentStep}
+                formData={formData}
+                setFormData={setFormData}
+              />
+            
               {/* Step 3: Skills */}
-              {currentStep === 3 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  <Typography
-                    variant="body1"
-                    sx={{ textAlign: "center", color: "grey.600", mb: 2 }}
-                  >
-                    Select the skills and services you can offer to other
-                    community members
-                  </Typography>
-
-                  {Object.entries(skillCategories).map(([category, skills]) => (
-                    <Box key={category} sx={{ mb: 3 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 600, color: "#0A6802", mb: 2 }}
-                      >
-                        {category}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "grid",
-                          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                          gap: 2,
-                        }}
-                      >
-                        {skills.map((skill) => (
-                          <FormControlLabel
-                            key={skill}
-                            control={
-                              <Checkbox
-                                checked={selectedSkills.includes(skill)}
-                                onChange={() => handleSkillToggle(skill)}
-                                sx={{
-                                  color: selectedSkills.includes(skill)
-                                    ? "#0A6802"
-                                    : "grey.400",
-                                  "&.Mui-checked": { color: "#0A6802" },
-                                }}
-                              />
-                            }
-                            label={skill}
-                            sx={{ fontSize: 14 }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                  ))}
-
-                  {/* Custom Skill Input */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 600, color: "#0A6802", mb: 2 }}
-                    >
-                      Add Custom Skill
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <TextField
-                        placeholder="Enter a custom skill"
-                        value={customSkill}
-                        onChange={(e) => setCustomSkill(e.target.value)}
-                        sx={{ bgcolor: "#E5F4E4", borderRadius: 2, flex: 1 }}
-                      />
-                      <Button
-                        onClick={addCustomSkill}
-                        variant="contained"
-                        sx={{
-                          bgcolor: "#D79800",
-                          "&:hover": { bgcolor: "#b8820a" },
-                        }}
-                      >
-                        <AddIcon />
-                      </Button>
-                    </Box>
-                  </Box>
-
-                  {/* Selected Skills */}
-                  {selectedSkills.length > 0 && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 600, color: "#0A6802", mb: 2 }}
-                      >
-                        Your Selected Skills ({selectedSkills.length})
-                      </Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {selectedSkills.map((skill) => (
-                          <Chip
-                            key={skill}
-                            label={`${skill} ×`}
-                            onClick={() => handleSkillToggle(skill)}
-                            sx={{
-                              bgcolor: "#e2b13dff",
-                              color: "white",
-                              cursor: "pointer",
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-                </Box>
-              )}
-
+              <Skills 
+                currentStep={currentStep}
+                selectedSkills={selectedSkills}
+                handleSkillToggle={handleSkillToggle}
+                customSkill={customSkill}
+                setCustomSkill={setCustomSkill}
+                addCustomSkill={addCustomSkill}
+              />
+             
               {/* Step 4: Availability */}
-              {currentStep === 4 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  <Typography
-                    variant="body1"
-                    sx={{ textAlign: "center", color: "grey.600", mb: 2 }}
-                  >
-                    Select your preferred time slots for each day of the week
-                  </Typography>
-
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 3 }}
-                  >
-                    {weekDays.map((day) => (
-                      <Box key={day} sx={{ mb: 2 }}>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "#0A6802", mb: 1 }}
-                        >
-                          {day}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                            gap: 1,
-                          }}
-                        >
-                          {timeSlots.map((timeSlot) => (
-                            <FormControlLabel
-                              key={`${day}-${timeSlot}`}
-                              control={
-                                <Checkbox
-                                  checked={
-                                    availability[day]?.includes(timeSlot) ||
-                                    false
-                                  }
-                                  onChange={() =>
-                                    handleAvailabilityToggle(day, timeSlot)
-                                  }
-                                  sx={{
-                                    color: availability[day]?.includes(timeSlot)
-                                      ? "#0A6802"
-                                      : "grey.400",
-                                    "&.Mui-checked": { color: "#0A6802" },
-                                  }}
-                                />
-                              }
-                              label={timeSlot}
-                              sx={{ fontSize: 14 }}
-                            />
-                          ))}
-                        </Box>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              )}
+              <Availability 
+                currentStep={currentStep}
+                availability={availability}
+                handleAvailabilityToggle={handleAvailabilityToggle}
+              />
 
               {/* Navigation Buttons */}
               <Box
