@@ -1,7 +1,7 @@
 // import { fromUnixTime } from "date-fns";
 
 export const config = {
-  apiUrl: "https://localhost:5043/api/",
+  apiUrl: "http://localhost:5043/api/",
   //   socketUrl: "https://localhost:5001/",
   //   frontEndUrl: "http://localhost:3000/",
 

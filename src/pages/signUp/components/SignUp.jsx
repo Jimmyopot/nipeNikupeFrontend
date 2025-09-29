@@ -3,28 +3,20 @@ import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import CardHeader from "@mui/material/CardHeader"
-import TextField from "@mui/material/TextField"
-import FormControl from "@mui/material/FormControl"
-import FormControlLabel from "@mui/material/FormControlLabel"
-import Checkbox from "@mui/material/Checkbox"
-import Select from "@mui/material/Select"
-import MenuItem from "@mui/material/MenuItem"
-import InputLabel from "@mui/material/InputLabel"
 import LinearProgress from "@mui/material/LinearProgress"
-import Chip from "@mui/material/Chip"
 import Typography from "@mui/material/Typography"
 import Box from "@mui/material/Box"
-import IconButton from "@mui/material/IconButton"
-import InputAdornment from "@mui/material/InputAdornment"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import PersonIcon from "@mui/icons-material/Person"
 import PlaceIcon from "@mui/icons-material/Place"
 import WorkIcon from "@mui/icons-material/Work"
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
-import VisibilityIcon from "@mui/icons-material/Visibility"
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff"
-import AddIcon from "@mui/icons-material/Add"
 import PersonalInfo from "./PersonalInfo"
+import Skills from "./Skills"
+import Availability from "./Availability"
+import Location from "./Location"
+import { useDispatch, useSelector } from "react-redux"
+import { signupAction } from "../state/SignUpActions"
 
 const skillCategories = {
   Technology: ["Web Development", "Mobile Apps", "QA Testing", "DevOps", "Data Analysis", "UI/UX Design"],
@@ -41,6 +33,7 @@ const timeSlots = ["Morning (6AM-12PM)", "Afternoon (12PM-6PM)", "Evening (6PM-1
 const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 export default function NipeNikupeRegistration() {
+  const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -48,17 +41,20 @@ export default function NipeNikupeRegistration() {
   const [customSkill, setCustomSkill] = useState("");
   const [availability, setAvailability] = useState({});
 
+  const { signup, signupResp } = useSelector((state) => state.SignUpReducer);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
     country: "",
-    city: "",
-    locality: "",
+    cityOrTown: "",
+    localityOrArea: "",
     skills: [],
-    availability: {},
+    availableDate: "2025-09-22T07:46:16.267Z",
+    availableTime: "16:00:00",
   });
 
   const totalSteps = 4;
@@ -97,6 +93,40 @@ export default function NipeNikupeRegistration() {
         : [...(prev[day] || []), timeSlot],
     }));
   };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // ✅ validation: check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    // ✅ exclude confirmPassword from payload
+    const { confirmPassword, ...cleanFormData } = formData;
+
+    const payload = {
+      ...cleanFormData,
+      skills: selectedSkills,
+      // availability,
+    };
+
+    dispatch(
+      signupAction({
+        formData: payload,
+        onSuccess: (resp) => {
+          console.log("✅ Signup success:", resp);
+          alert("Registration successful!");
+          // navigate("/login") if using react-router
+        },
+        onFailure: () => {
+          console.error("❌ Signup failed");
+          alert("Registration failed. Please try again.");
+        },
+      })
+    );
+  }
 
   const getPasswordStrength = (password) => {
     let strength = 0;
@@ -228,90 +258,92 @@ export default function NipeNikupeRegistration() {
               </Typography>
             </CardHeader>
             <CardContent sx={{ p: 4 }}>
-            
-              {/* Step 1: Personal Information */}
-              <PersonalInfo
-                currentStep={currentStep}
-                formData={formData}
-                setFormData={setFormData}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-                showConfirmPassword={showConfirmPassword}
-                setShowConfirmPassword={setShowConfirmPassword}
-                passwordStrength={passwordStrength}
-                strengthLabels={strengthLabels}
-              />
+              <form onSubmit={handleSubmit}>
+                {/* Step 1: Personal Information */}
+                <PersonalInfo
+                  currentStep={currentStep}
+                  formData={formData}
+                  setFormData={setFormData}
+                  showPassword={showPassword}
+                  setShowPassword={setShowPassword}
+                  showConfirmPassword={showConfirmPassword}
+                  setShowConfirmPassword={setShowConfirmPassword}
+                  passwordStrength={passwordStrength}
+                  strengthLabels={strengthLabels}
+                />
 
-              {/* Step 2: Location */}
-              <Location 
-                currentStep={currentStep}
-                formData={formData}
-                setFormData={setFormData}
-              />
-            
-              {/* Step 3: Skills */}
-              <Skills 
-                currentStep={currentStep}
-                selectedSkills={selectedSkills}
-                handleSkillToggle={handleSkillToggle}
-                customSkill={customSkill}
-                setCustomSkill={setCustomSkill}
-                addCustomSkill={addCustomSkill}
-              />
-             
-              {/* Step 4: Availability */}
-              <Availability 
-                currentStep={currentStep}
-                availability={availability}
-                handleAvailabilityToggle={handleAvailabilityToggle}
-              />
+                {/* Step 2: Location */}
+                <Location
+                  currentStep={currentStep}
+                  formData={formData}
+                  setFormData={setFormData}
+                />
 
-              {/* Navigation Buttons */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mt: 4,
-                  pt: 3,
-                  borderTop: 1,
-                  borderColor: "divider",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  onClick={handlePrevious}
-                  disabled={currentStep === 1}
-                  sx={{ borderRadius: 2 }}
+                {/* Step 3: Skills */}
+                <Skills
+                  currentStep={currentStep}
+                  selectedSkills={selectedSkills}
+                  handleSkillToggle={handleSkillToggle}
+                  customSkill={customSkill}
+                  setCustomSkill={setCustomSkill}
+                  addCustomSkill={addCustomSkill}
+                />
+
+                {/* Step 4: Availability */}
+                <Availability
+                  currentStep={currentStep}
+                  availability={availability}
+                  handleAvailabilityToggle={handleAvailabilityToggle}
+                />
+
+                {/* Navigation Buttons */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mt: 4,
+                    pt: 3,
+                    borderTop: 1,
+                    borderColor: "divider",
+                  }}
                 >
-                  Previous
-                </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 1}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    Previous
+                  </Button>
 
-                {currentStep < totalSteps ? (
-                  <Button
-                    variant="contained"
-                    onClick={handleNext}
-                    sx={{
-                      borderRadius: 2,
-                      bgcolor: "#0A6802",
-                      "&:hover": { bgcolor: "#085a01" },
-                    }}
-                  >
-                    Next Step
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    sx={{
-                      borderRadius: 2,
-                      bgcolor: "#0A6802",
-                      "&:hover": { bgcolor: "#085a01" },
-                    }}
-                  >
-                    Complete Registration
-                  </Button>
-                )}
-              </Box>
+                  {currentStep < totalSteps ? (
+                    <Button
+                      variant="contained"
+                      onClick={handleNext}
+                      sx={{
+                        borderRadius: 2,
+                        bgcolor: "#0A6802",
+                        "&:hover": { bgcolor: "#085a01" },
+                      }}
+                    >
+                      Next Step
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={signup}
+                      sx={{
+                        borderRadius: 2,
+                        bgcolor: "#0A6802",
+                        "&:hover": { bgcolor: "#085a01" },
+                      }}
+                    >
+                      {signup ? "Registering..." : "Complete Registration"}
+                    </Button>
+                  )}
+                </Box>
+              </form>
             </CardContent>
           </Card>
 
