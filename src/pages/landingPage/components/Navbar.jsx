@@ -13,6 +13,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import { useNavigate } from "react-router-dom";
 
 
 const navLinks = [
@@ -24,28 +25,69 @@ const navLinks = [
 ];
 
 export function Navbar() {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const goToSignUp = () => {
+    navigate("/signUp");
+  };
+
   return (
-    <AppBar position="fixed" sx={{ bgcolor: 'background.main', backdropFilter: 'blur(8px)', borderBottom: 1, borderColor: 'divider', boxShadow: 0 }}>
-      <Toolbar sx={{ minHeight: 64, display: 'flex', justifyContent: 'space-between' }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        bgcolor: "background.main",
+        backdropFilter: "blur(8px)",
+        borderBottom: 1,
+        borderColor: "divider",
+        boxShadow: 0,
+      }}
+    >
+      <Toolbar
+        sx={{ minHeight: 64, display: "flex", justifyContent: "space-between" }}
+      >
         {/* Logo */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ p: 1, bgcolor: 'primary.main', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <HandshakeIcon sx={{ color: 'primary.contrastText', width: 24, height: 24 }} />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              p: 1,
+              bgcolor: "primary.main",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <HandshakeIcon
+              sx={{ color: "primary.contrastText", width: 24, height: 24 }}
+            />
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", color: "text.primary" }}
+          >
             NipeNikupe
           </Typography>
         </Box>
 
         {/* Desktop Navigation */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 4 }}>
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
           {navLinks.map((link) => (
             <Button
               key={link.href}
               href={link.href}
-              sx={{ color: 'text.primary', textTransform: 'none', fontWeight: 500, '&:hover': { color: 'primary.main' } }}
+              sx={{
+                color: "text.primary",
+                textTransform: "none",
+                fontWeight: 500,
+                "&:hover": { color: "primary.main" },
+              }}
               variant="text"
             >
               {link.label}
@@ -54,19 +96,34 @@ export function Navbar() {
         </Box>
 
         {/* CTA Button */}
-        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-          <Button variant="contained" color="primary" sx={{ textTransform: 'none', fontWeight: 600 }}>
+        <Box sx={{ display: { xs: "none", md: "block" } }}>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ textTransform: "none", fontWeight: 600 }}
+            onClick={goToSignUp}
+          >
             Get Started
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            sx={{ textTransform: "none", fontWeight: 600, ml: 2 }}
+            onClick={goToSignUp}
+          >
+            Login
           </Button>
         </Box>
 
         {/* Mobile Menu Button */}
-        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        <Box sx={{ display: { xs: "block", md: "none" } }}>
           <IconButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? (
-              <CloseIcon sx={{ color: 'text.primary', width: 28, height: 28 }} />
+              <CloseIcon
+                sx={{ color: "text.primary", width: 28, height: 28 }}
+              />
             ) : (
-              <MenuIcon sx={{ color: 'text.primary', width: 28, height: 28 }} />
+              <MenuIcon sx={{ color: "text.primary", width: 28, height: 28 }} />
             )}
           </IconButton>
         </Box>
@@ -77,20 +134,52 @@ export function Navbar() {
         anchor="top"
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        sx={{ display: { md: 'none' } }}
-        PaperProps={{ sx: { pt: 8, pb: 2, borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' } }}
+        sx={{ display: { md: "none" } }}
+        PaperProps={{
+          sx: {
+            pt: 8,
+            pb: 2,
+            borderTop: 1,
+            borderColor: "divider",
+            bgcolor: "background.paper",
+          },
+        }}
       >
         <List>
           {navLinks.map((link) => (
             <ListItem key={link.href} disablePadding>
-              <ListItemButton component="a" href={link.href} onClick={() => setIsMenuOpen(false)}>
-                <ListItemText primary={link.label} primaryTypographyProps={{ sx: { color: 'text.primary', fontWeight: 500 } }} />
+              <ListItemButton
+                component="a"
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ListItemText
+                  primary={link.label}
+                  primaryTypographyProps={{
+                    sx: { color: "text.primary", fontWeight: 500 },
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           ))}
           <ListItem>
-            <Button variant="contained" color="primary" fullWidth sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 1, textTransform: "none", fontWeight: 600 }}
+            >
               Get Started
+            </Button>
+          </ListItem>
+          <ListItem>
+            <Button
+              variant="outlined"
+              color="secondary"
+              fullWidth
+              sx={{ mt: 1, textTransform: "none", fontWeight: 600 }}
+            >
+              Login
             </Button>
           </ListItem>
         </List>

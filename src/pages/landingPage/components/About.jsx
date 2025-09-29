@@ -10,8 +10,14 @@ import FlashOnIcon from "@mui/icons-material/FlashOn";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import delivery from "../../../assets/delivery.png";
+import { useNavigate } from "react-router-dom";
 
 export function AboutSection() {
+  const navigate = useNavigate();
+
+  const goToSignUp = () => {
+    navigate("/signUp");
+  };
   return (
     <Box
       component="section"
@@ -80,6 +86,7 @@ export function AboutSection() {
             <Button
               variant="contained"
               color="primary"
+              onClick={goToSignUp}
               sx={{ fontWeight: 600, textTransform: "none" }}
             >
               Join Our Community

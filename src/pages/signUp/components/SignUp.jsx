@@ -1,52 +1,106 @@
-import React, { useState } from "react"
-import Button from "@mui/material/Button"
-import Card from "@mui/material/Card"
-import CardContent from "@mui/material/CardContent"
-import CardHeader from "@mui/material/CardHeader"
-import TextField from "@mui/material/TextField"
-import FormControl from "@mui/material/FormControl"
-import FormControlLabel from "@mui/material/FormControlLabel"
-import Checkbox from "@mui/material/Checkbox"
-import Select from "@mui/material/Select"
-import MenuItem from "@mui/material/MenuItem"
-import InputLabel from "@mui/material/InputLabel"
-import LinearProgress from "@mui/material/LinearProgress"
-import Chip from "@mui/material/Chip"
-import Typography from "@mui/material/Typography"
-import Box from "@mui/material/Box"
-import IconButton from "@mui/material/IconButton"
-import InputAdornment from "@mui/material/InputAdornment"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import PersonIcon from "@mui/icons-material/Person"
-import PlaceIcon from "@mui/icons-material/Place"
-import WorkIcon from "@mui/icons-material/Work"
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
-import VisibilityIcon from "@mui/icons-material/Visibility"
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff"
-import AddIcon from "@mui/icons-material/Add"
-import PersonalInfo from "./PersonalInfo"
+import React, { useState } from "react";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardHeader from "@mui/material/CardHeader";
+import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import LinearProgress from "@mui/material/LinearProgress";
+import Chip from "@mui/material/Chip";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PersonIcon from "@mui/icons-material/Person";
+import PlaceIcon from "@mui/icons-material/Place";
+import WorkIcon from "@mui/icons-material/Work";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+// import VisibilityIcon from "@mui/icons-material/Visibility";
+// import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import AddIcon from "@mui/icons-material/Add";
+import PersonalInfo from "./PersonalInfo";
 
 const skillCategories = {
-  Technology: ["Web Development", "Mobile Apps", "QA Testing", "DevOps", "Data Analysis", "UI/UX Design"],
-  Creative: ["Photography", "Video Editing", "Graphic Design", "Content Writing", "Music Production", "Animation"],
-  Education: ["Tutoring", "Language Teaching", "Exam Prep", "Workshop Facilitation", "Curriculum Design"],
-  Lifestyle: ["Cooking", "Fitness Coaching", "Gardening", "Interior Design", "Personal Styling"],
-  "Professional Services": ["Legal Advice", "Accounting", "Career Coaching", "Business Consulting", "Marketing"],
+  Technology: [
+    "Web Development",
+    "Mobile Apps",
+    "QA Testing",
+    "DevOps",
+    "Data Analysis",
+    "UI/UX Design",
+  ],
+  Creative: [
+    "Photography",
+    "Video Editing",
+    "Graphic Design",
+    "Content Writing",
+    "Music Production",
+    "Animation",
+  ],
+  Education: [
+    "Tutoring",
+    "Language Teaching",
+    "Exam Prep",
+    "Workshop Facilitation",
+    "Curriculum Design",
+  ],
+  Lifestyle: [
+    "Cooking",
+    "Fitness Coaching",
+    "Gardening",
+    "Interior Design",
+    "Personal Styling",
+  ],
+  "Professional Services": [
+    "Legal Advice",
+    "Accounting",
+    "Career Coaching",
+    "Business Consulting",
+    "Marketing",
+  ],
   Others: ["Custom Skill"],
-}
+};
 
-const countries = ["Kenya", "Uganda", "Tanzania", "Rwanda", "Nigeria", "Ghana", "South Africa", "Other"]
+const countries = [
+  "Kenya",
+  "Uganda",
+  "Tanzania",
+  "Rwanda",
+  "Nigeria",
+  "Ghana",
+  "South Africa",
+  "Other",
+];
 
-const timeSlots = ["Morning (6AM-12PM)", "Afternoon (12PM-6PM)", "Evening (6PM-10PM)", "Night (10PM-6AM)"]
-const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+const timeSlots = [
+  "Morning (6AM-12PM)",
+  "Afternoon (12PM-6PM)",
+  "Evening (6PM-10PM)",
+  "Night (10PM-6AM)",
+];
+const weekDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 export default function NipeNikupeRegistration() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [selectedSkills, setSelectedSkills] = useState([])
-  const [customSkill, setCustomSkill] = useState("")
-  const [availability, setAvailability] = useState({})
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [customSkill, setCustomSkill] = useState("");
+  const [availability, setAvailability] = useState({});
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -59,33 +113,35 @@ export default function NipeNikupeRegistration() {
     locality: "",
     skills: [],
     availability: {},
-  })
+  });
 
-  const totalSteps = 4
-  const progress = (currentStep / totalSteps) * 100
+  const totalSteps = 4;
+  const progress = (currentStep / totalSteps) * 100;
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
-  }
+  };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
   const handleSkillToggle = (skill) => {
-    setSelectedSkills((prev) => (prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]))
-  }
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
+    );
+  };
 
   const addCustomSkill = () => {
     if (customSkill.trim() && !selectedSkills.includes(customSkill.trim())) {
-      setSelectedSkills((prev) => [...prev, customSkill.trim()])
-      setCustomSkill("")
+      setSelectedSkills((prev) => [...prev, customSkill.trim()]);
+      setCustomSkill("");
     }
-  }
+  };
 
   const handleAvailabilityToggle = (day, timeSlot) => {
     setAvailability((prev) => ({
@@ -93,20 +149,20 @@ export default function NipeNikupeRegistration() {
       [day]: prev[day]?.includes(timeSlot)
         ? prev[day].filter((slot) => slot !== timeSlot)
         : [...(prev[day] || []), timeSlot],
-    }))
-  }
+    }));
+  };
 
   const getPasswordStrength = (password) => {
-    let strength = 0
-    if (password.length >= 8) strength++
-    if (/[A-Z]/.test(password)) strength++
-    if (/[0-9]/.test(password)) strength++
-    if (/[^A-Za-z0-9]/.test(password)) strength++
-    return strength
-  }
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    return strength;
+  };
 
-  const passwordStrength = getPasswordStrength(formData.password)
-  const strengthLabels = ["Weak", "Fair", "Good", "Strong"]
+  const passwordStrength = getPasswordStrength(formData.password);
+  const strengthLabels = ["Weak", "Fair", "Good", "Strong"];
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F0FCF0" }}>
@@ -227,7 +283,7 @@ export default function NipeNikupeRegistration() {
             </CardHeader>
             <CardContent sx={{ p: 4 }}>
               {/* Step 1: Personal Information */}
-              <PersonalInfo 
+              <PersonalInfo
                 currentStep={currentStep}
                 formData={formData}
                 setFormData={setFormData}
@@ -238,141 +294,6 @@ export default function NipeNikupeRegistration() {
                 passwordStrength={passwordStrength}
                 strengthLabels={strengthLabels}
               />
-              {/* {currentStep === 1 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  <TextField
-                    fullWidth
-                    label="Full Name"
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fullName: e.target.value })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                  />
-
-                  <TextField
-                    fullWidth
-                    label="Email Address"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                  />
-
-                  <TextField
-                    fullWidth
-                    label="Phone Number"
-                    type="tel"
-                    placeholder="+254 700 000 000"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                  />
-
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? (
-                              <VisibilityOffIcon />
-                            ) : (
-                              <VisibilityIcon />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {formData.password && (
-                    <Box sx={{ mt: 1 }}>
-                      <Box sx={{ display: "flex", gap: 0.5, mb: 1 }}>
-                        {[0, 1, 2, 3].map((i) => (
-                          <Box
-                            key={i}
-                            sx={{
-                              height: 8,
-                              flex: 1,
-                              borderRadius: 1,
-                              bgcolor:
-                                i < passwordStrength
-                                  ? passwordStrength === 1
-                                    ? "error.main"
-                                    : passwordStrength === 2
-                                    ? "warning.main"
-                                    : passwordStrength === 3
-                                    ? "warning.light"
-                                    : "success.main"
-                                  : "grey.200",
-                            }}
-                          />
-                        ))}
-                      </Box>
-                      <Typography variant="body2" sx={{ color: "grey.600" }}>
-                        Password strength:{" "}
-                        {strengthLabels[passwordStrength - 1] || "Too weak"}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  <TextField
-                    fullWidth
-                    label="Confirm Password"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                    sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() =>
-                              setShowConfirmPassword(!showConfirmPassword)
-                            }
-                            edge="end"
-                          >
-                            {showConfirmPassword ? (
-                              <VisibilityOffIcon />
-                            ) : (
-                              <VisibilityIcon />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {formData.confirmPassword &&
-                    formData.password !== formData.confirmPassword && (
-                      <Typography variant="body2" sx={{ color: "error.main" }}>
-                        Passwords do not match
-                      </Typography>
-                    )}
-                </Box>
-              )} */}
 
               {/* Step 2: Location */}
               {currentStep === 2 && (
@@ -646,7 +567,16 @@ export default function NipeNikupeRegistration() {
               {currentStep === 4 &&
                 "Final step! Set your availability and you're done! 🎉"}
             </Typography>
-            <Typography variant="overline" sx={{ color: "grey.600", display: "flex", justifyContent: "center", gap: 0.5, textTransform: "none",  }}>
+            <Typography
+              variant="overline"
+              sx={{
+                color: "grey.600",
+                display: "flex",
+                justifyContent: "center",
+                gap: 0.5,
+                textTransform: "none",
+              }}
+            >
               Already have an account?
               <Typography
                 variant="overline"
@@ -654,7 +584,8 @@ export default function NipeNikupeRegistration() {
                   textTransform: "none",
                   textDecoration: "underline",
                   color: "secondary.main",
-                  cursor: "pointer", fontWeight: 600
+                  cursor: "pointer",
+                  fontWeight: 600,
                 }}
               >
                 Login
@@ -666,4 +597,3 @@ export default function NipeNikupeRegistration() {
     </Box>
   );
 }
-

@@ -1,22 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+// import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+// import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import plumber from "../../../assets/plumber.png";
 import engineers from "../../../assets/engineers.png";
-import doctor from "../../../assets/doctor.png";
+// import doctor from "../../../assets/doctor.png";
+import hairdresser from "../../../assets/hairdresser.png";
 import photographer from "../../../assets/photographer.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function HeroSection() {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const professionImages = [
     {
-      src: doctor,
+      src: hairdresser,
       alt: "Doctor examining a patient",
     },
     {
@@ -32,6 +34,10 @@ export function HeroSection() {
       alt: "Photographer capturing a moment",
     },
   ];
+
+  const goToSignUp = () => {
+    navigate("/signUp");
+  }
 
   // Auto-rotate images every 4 seconds
   useEffect(() => {
@@ -143,19 +149,22 @@ export function HeroSection() {
             >
               <Button
                 // component={Link}
-                href="/register"
+                color="primary"
+                // href="/register"
                 size="large"
                 variant="contained"
                 sx={{
                   fontSize: 18,
                   px: 4,
                   py: 2,
-                  backgroundColor: "primary.main",
-                  "&:hover": { backgroundColor: "primary.dark" },
+                  textTransform: "none",
+                  // backgroundColor: "primary.main",
+                  // "&:hover": { backgroundColor: "primary.dark" },
                 }}
                 endIcon={<ArrowRightAltIcon sx={{ ml: 1, fontSize: 24 }} />}
-                component={Link}
-                to="/signUp"
+                onClick={goToSignUp}
+                // component={Link}
+                // to="/signUp"
               >
                 Get Started
               </Button>
@@ -164,11 +173,13 @@ export function HeroSection() {
                 href="#how-it-works"
                 size="large"
                 variant="outlined"
+                color="secondary"
                 sx={{
                   fontSize: 18,
                   px: 4,
                   py: 2,
-                  backgroundColor: "transparent",
+                  textTransform: "none",
+                  // backgroundColor: "transparent",
                 }}
               >
                 See How It Works

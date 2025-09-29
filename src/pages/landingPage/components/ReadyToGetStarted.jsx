@@ -8,6 +8,7 @@ import HandshakeIcon from "@mui/icons-material/Handshake";
 import GroupIcon from "@mui/icons-material/Group";
 import StarIcon from "@mui/icons-material/Star";
 import carpenter from "../../../assets/carpenter.png";
+import { useNavigate } from "react-router-dom";
 
 const testimonials = [
   {
@@ -55,7 +56,12 @@ const communityMembers = [
 ];
 
 export function ReadyToGetStarted() {
+  const navigate = useNavigate();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const goToSignUp = () => {
+    navigate("/signUp");
+  }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -319,6 +325,7 @@ export function ReadyToGetStarted() {
                 },
                 transition: "all 0.3s",
               }}
+              onClick={goToSignUp}
               startIcon={<HandshakeIcon sx={{ width: 22, height: 22 }} />}
             >
               Join NipeNikupe
