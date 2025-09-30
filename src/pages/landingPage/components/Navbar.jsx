@@ -32,6 +32,10 @@ export function Navbar() {
     navigate("/signUp");
   };
 
+  const goToLogin = () => {
+    navigate("/login");
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -98,20 +102,20 @@ export function Navbar() {
         {/* CTA Button */}
         <Box sx={{ display: { xs: "none", md: "block" } }}>
           <Button
-            variant="contained"
-            color="primary"
-            sx={{ textTransform: "none", fontWeight: 600 }}
-            onClick={goToSignUp}
-          >
-            Get Started
-          </Button>
-          <Button
             variant="outlined"
             color="secondary"
+            sx={{ textTransform: "none", fontWeight: 600 }}
+            onClick={goToLogin}
+          >
+            Login
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
             sx={{ textTransform: "none", fontWeight: 600, ml: 2 }}
             onClick={goToSignUp}
           >
-            Login
+            Get Started
           </Button>
         </Box>
 
