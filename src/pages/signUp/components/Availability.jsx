@@ -151,26 +151,34 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
 
           {/* Calendar + Time Picker */}
           <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { md: "1fr 1fr" },
-              gap: 4,
-              mb: 4,
-            }}
+            sx={
+              {
+                // display: "grid",
+                // gridTemplateColumns: { md: "1fr 1fr" },
+                // gap: 4,
+                // mb: 4,
+
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                justifyContent: "space-between",
+                mb: 2,
+              }
+            }
           >
             {/* Calendar Section */}
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
               <Typography
-                variant="h6"
+                variant="subtitle1" // smaller than h6
                 sx={{
                   fontWeight: 600,
                   color: "#0A6802",
                   display: "flex",
                   alignItems: "center",
-                  mb: 2,
+                  mb: 1,
+                  fontSize: "0.95rem", // tighter
                 }}
               >
-                <CalendarIcon sx={{ mr: 1, fontSize: 20 }} />
+                <CalendarIcon sx={{ mr: 1, fontSize: 18 }} />
                 Select Date
               </Typography>
 
@@ -178,8 +186,9 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                 sx={{
                   border: "1px solid #ddd",
                   borderRadius: 2,
-                  p: 3,
+                  p: 3, // reduced from 3
                   backgroundColor: "#FCF5E6",
+                  maxWidth: 320, // ✅ limit width
                 }}
               >
                 {/* Calendar Header */}
@@ -188,28 +197,38 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    mb: 2,
+                    mb: 1.5,
                   }}
                 >
-                  <IconButton onClick={() => navigateMonth("prev")} size="small">
-                    <ChevronLeftIcon sx={{ fontSize: 16 }} />
+                  <IconButton
+                    onClick={() => navigateMonth("prev")}
+                    size="small"
+                  >
+                    <ChevronLeftIcon sx={{ fontSize: 14 }} />
                   </IconButton>
 
                   <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 600, color: "#0A6802" }}
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 600,
+                      color: "#0A6802",
+                      fontSize: "0.9rem",
+                    }}
                   >
                     {new Date(currentYear, currentMonth).toLocaleDateString(
                       "en-US",
                       {
-                        month: "long",
+                        month: "short",
                         year: "numeric",
                       }
                     )}
                   </Typography>
 
-                  <IconButton onClick={() => navigateMonth("next")} size="small">
-                    <ChevronRightIcon sx={{ fontSize: 16 }} />
+                  <IconButton
+                    onClick={() => navigateMonth("next")}
+                    size="small"
+                  >
+                    <ChevronRightIcon sx={{ fontSize: 14 }} />
                   </IconButton>
                 </Box>
 
@@ -218,8 +237,8 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                   sx={{
                     display: "grid",
                     gridTemplateColumns: "repeat(7, 1fr)",
-                    gap: 0.5,
-                    mb: 1,
+                    gap: 0.25,
+                    mb: 0.5,
                   }}
                 >
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
@@ -228,10 +247,10 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                         key={day}
                         sx={{
                           textAlign: "center",
-                          fontSize: "0.75rem",
+                          fontSize: "0.7rem",
                           fontWeight: 500,
-                          color: "grey.500",
-                          p: 1,
+                          color: "grey.600",
+                          p: 0.5,
                         }}
                       >
                         {day}
@@ -244,14 +263,14 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                   sx={{
                     display: "grid",
                     gridTemplateColumns: "repeat(7, 1fr)",
-                    gap: 0.5,
+                    gap: 0.25,
                   }}
                 >
-                  {/* Empty cells for days before month starts */}
+                  {/* Empty cells */}
                   {Array.from({
                     length: getFirstDayOfMonth(currentMonth, currentYear),
                   }).map((_, index) => (
-                    <Box key={`empty-${index}`} sx={{ p: 1 }}></Box>
+                    <Box key={`empty-${index}`} sx={{ p: 0.5 }}></Box>
                   ))}
 
                   {/* Calendar days */}
@@ -268,17 +287,20 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                         onClick={() => handleDateSelect(date)}
                         disabled={isDisabled}
                         sx={{
-                          p: 1,
-                          fontSize: "0.875rem",
+                          p: 0.5, // smaller button
+                          fontSize: "0.75rem",
                           borderRadius: 1,
                           aspectRatio: "1",
-                          backgroundColor: isSelected ? "#0A6802" : "transparent",
+                          backgroundColor: isSelected
+                            ? "#0A6802"
+                            : "transparent",
                           color: isSelected
                             ? "white"
                             : isDisabled
-                            ? "grey.300"
+                            ? "grey.400"
                             : "grey.700",
                           fontWeight: isSelected ? 600 : 400,
+                          minWidth: 0, // prevent oversized button
                         }}
                       >
                         {date}
@@ -360,13 +382,24 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                         displayEmpty
                       >
                         <MenuItem value="">--</MenuItem>
-                        {["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"].map(
-                          (minute) => (
-                            <MenuItem key={minute} value={minute}>
-                              {minute}
-                            </MenuItem>
-                          )
-                        )}
+                        {[
+                          "00",
+                          "05",
+                          "10",
+                          "15",
+                          "20",
+                          "25",
+                          "30",
+                          "35",
+                          "40",
+                          "45",
+                          "50",
+                          "55",
+                        ].map((minute) => (
+                          <MenuItem key={minute} value={minute}>
+                            {minute}
+                          </MenuItem>
+                        ))}
                       </Select>
                     </FormControl>
 
@@ -412,7 +445,9 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
                     backgroundColor: "#F8F9FA",
                   }}
                 >
-                  <CalendarIcon sx={{ fontSize: 48, color: "grey.400", mb: 2 }} />
+                  <CalendarIcon
+                    sx={{ fontSize: 48, color: "grey.400", mb: 2 }}
+                  />
                   <Typography variant="body2" sx={{ color: "grey.500" }}>
                     Please select a date first
                   </Typography>
@@ -424,7 +459,10 @@ const Availability = ({ currentStep, availability, handleAvailabilityToggle }) =
           {/* Slots */}
           {availabilitySlots.length > 0 && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#0A6802" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, color: "#0A6802" }}
+              >
                 Your Availability ({availabilitySlots.length} slots)
               </Typography>
               <Box

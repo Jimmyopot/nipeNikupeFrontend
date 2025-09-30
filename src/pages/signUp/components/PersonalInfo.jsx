@@ -15,7 +15,9 @@ const PersonalInfo = ({
     showConfirmPassword,
     setShowConfirmPassword,
     passwordStrength,
-    strengthLabels }) => {
+    strengthLabels,
+    errors
+  }) => {
   return (
     <Box>
       {currentStep === 1 && (
@@ -28,6 +30,8 @@ const PersonalInfo = ({
             onChange={(e) =>
               setFormData({ ...formData, fullName: e.target.value })
             }
+            error={!!errors.fullName}
+            helperText={errors.fullName}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
           />
 
@@ -40,6 +44,8 @@ const PersonalInfo = ({
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
             }
+            error={!!errors.email}
+            helperText={errors.email}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
           />
 
@@ -54,6 +60,11 @@ const PersonalInfo = ({
             }
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
           />
+
+          <Typography variant="caption" color="textSecondary">
+            Password should be at least 8 characters, include an uppercase
+            letter, a number, and a special character.
+          </Typography>
 
           <TextField
             fullWidth

@@ -40,6 +40,7 @@ export default function NipeNikupeRegistration() {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [customSkill, setCustomSkill] = useState("");
   const [availability, setAvailability] = useState({});
+  const [errors, setErrors] = useState({});
 
   const { signup, signupResp, availableDate, availableTime } = useSelector((state) => state.SignUpReducer);
 
@@ -57,12 +58,69 @@ export default function NipeNikupeRegistration() {
     availableTime: "",
   });
 
+  const validateStep = () => {
+    let newErrors = {};
+
+    if (currentStep === 1) {
+      // ✅ Personal Info
+      if (
+        !formData.fullName ||
+        formData.fullName.trim().split(" ").length < 5
+      ) {
+        newErrors.fullName = "*Full name must have more than 4 words";
+      }
+      if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "*Enter a valid email address";
+      }
+      if (!/^\+?\d{7,15}$/.test(formData.phoneNumber)) {
+        newErrors.phoneNumber = "*Enter a valid phone number";
+      }
+      if (!formData.password) {
+        newErrors.password = "*Password is required";
+      }
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "*Passwords do not match";
+      }
+    }
+
+    if (currentStep === 2) {
+      // ✅ Location
+      if (!formData.country) newErrors.country = "Country is required";
+      if (!formData.cityOrTown)
+        newErrors.cityOrTown = "City/Town is required";
+      if (!formData.localityOrArea)
+        newErrors.localityOrArea = "Locality/Area is required";
+    }
+
+    if (currentStep === 3) {
+      // ✅ Skills
+      if (selectedSkills.length < 1) {
+        newErrors.skills = "Please select at least one skill";
+      }
+    }
+
+    if (currentStep === 4) {
+      // ✅ Availability
+      if (!formData.availableDate) {
+        newErrors.availableDate = "Please select a date";
+      }
+      if (!formData.availableTime) {
+        newErrors.availableTime = "Please select a time";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
 
   const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+    if (validateStep()) {
+      if (currentStep < totalSteps) {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
@@ -97,11 +155,14 @@ export default function NipeNikupeRegistration() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    
     // ✅ validation: check if passwords match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match");
       return;
     }
+    
+    if (!validateStep()) return;
 
     // ✅ exclude confirmPassword from payload
     const { confirmPassword, ...cleanFormData } = formData;
@@ -259,7 +320,7 @@ export default function NipeNikupeRegistration() {
               </Typography>
             </CardHeader>
             <CardContent sx={{ p: 4 }}>
-              <form onSubmit={handleSubmit}>
+              {/* <form onSubmit={handleSubmit}> */}
                 {/* Step 1: Personal Information */}
                 <PersonalInfo
                   currentStep={currentStep}
@@ -271,6 +332,7 @@ export default function NipeNikupeRegistration() {
                   setShowConfirmPassword={setShowConfirmPassword}
                   passwordStrength={passwordStrength}
                   strengthLabels={strengthLabels}
+                  errors={errors}
                 />
 
                 {/* Step 2: Location */}
@@ -278,6 +340,7 @@ export default function NipeNikupeRegistration() {
                   currentStep={currentStep}
                   formData={formData}
                   setFormData={setFormData}
+                  errors={errors}
                 />
 
                 {/* Step 3: Skills */}
@@ -288,6 +351,7 @@ export default function NipeNikupeRegistration() {
                   customSkill={customSkill}
                   setCustomSkill={setCustomSkill}
                   addCustomSkill={addCustomSkill}
+                  errors={errors}
                 />
 
                 {/* Step 4: Availability */}
@@ -295,6 +359,7 @@ export default function NipeNikupeRegistration() {
                   currentStep={currentStep}
                   availability={availability}
                   handleAvailabilityToggle={handleAvailabilityToggle}
+                  errors={errors}
                 />
 
                 {/* Navigation Buttons */}
@@ -309,6 +374,7 @@ export default function NipeNikupeRegistration() {
                   }}
                 >
                   <Button
+                    type="button"
                     variant="outlined"
                     onClick={handlePrevious}
                     disabled={currentStep === 1}
@@ -319,6 +385,7 @@ export default function NipeNikupeRegistration() {
 
                   {currentStep < totalSteps ? (
                     <Button
+                      type="button"
                       variant="contained"
                       onClick={handleNext}
                       sx={{
@@ -331,7 +398,9 @@ export default function NipeNikupeRegistration() {
                     </Button>
                   ) : (
                     <Button
-                      type="submit"
+                      // type="submit"
+                      type="button" // not submit anymore
+                      onClick={handleSubmit} // ✅ directly call your submit logic
                       variant="contained"
                       disabled={signup}
                       sx={{
@@ -344,7 +413,7 @@ export default function NipeNikupeRegistration() {
                     </Button>
                   )}
                 </Box>
-              </form>
+              {/* </form> */}
             </CardContent>
           </Card>
 
