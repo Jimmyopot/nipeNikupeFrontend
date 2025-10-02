@@ -1,37 +1,57 @@
 // @ts-nocheck
-import { Box, TextField, Typography } from '@mui/material'
-import React from 'react';
-import IconButton from "@mui/material/IconButton"
-import InputAdornment from "@mui/material/InputAdornment"
+import { Box, TextField, Typography } from "@mui/material";
+import React from "react";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
-const PersonalInfo = ({ 
-    currentStep,
-    formData,
-    setFormData,
-    showPassword,
-    setShowPassword,
-    showConfirmPassword,
-    setShowConfirmPassword,
-    passwordStrength,
-    strengthLabels,
-    errors
-  }) => {
+const PersonalInfo = ({
+  currentStep,
+  formData,
+  setFormData,
+  showPassword,
+  setShowPassword,
+  showConfirmPassword,
+  setShowConfirmPassword,
+  passwordStrength,
+  strengthLabels,
+  errors,
+  setErrors, // ✅ Add this prop
+}) => {
   return (
     <Box>
       {currentStep === 1 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <TextField
             fullWidth
-            label="Full Name"
-            placeholder="Enter your full name"
-            value={formData.fullName}
-            onChange={(e) =>
-              setFormData({ ...formData, fullName: e.target.value })
-            }
-            error={!!errors.fullName}
-            helperText={errors.fullName}
+            label="First Name"
+            placeholder="Enter your first name"
+            value={formData.firstName}
+            onChange={(e) => {
+              setFormData({ ...formData, firstName: e.target.value });
+              if (errors.firstName && e.target.value.trim()) {
+                setErrors({ ...errors, firstName: "" });
+              }
+            }}
+            error={!!errors.firstName}
+            helperText={errors.firstName}
+            sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            label="Last Name"
+            placeholder="Enter your last name"
+            value={formData.lastName}
+            onChange={(e) => {
+              setFormData({ ...formData, lastName: e.target.value });
+              if (errors.lastName && e.target.value.trim()) {
+                setErrors({ ...errors, lastName: "" });
+              }
+            }}
+            error={!!errors.lastName}
+            helperText={errors.lastName}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
           />
 
@@ -41,9 +61,13 @@ const PersonalInfo = ({
             type="email"
             placeholder="your.email@example.com"
             value={formData?.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
+            onChange={(e) => {
+              setFormData({ ...formData, email: e.target.value });
+              // ✅ Clear error when valid email is entered
+              if (errors.email && /\S+@\S+\.\S+/.test(e.target.value)) {
+                setErrors({ ...errors, email: "" });
+              }
+            }}
             error={!!errors.email}
             helperText={errors.email}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
@@ -55,9 +79,15 @@ const PersonalInfo = ({
             type="tel"
             placeholder="+254 700 000 000"
             value={formData?.phoneNumber}
-            onChange={(e) =>
-              setFormData({ ...formData, phoneNumber: e.target.value })
-            }
+            onChange={(e) => {
+              setFormData({ ...formData, phoneNumber: e.target.value });
+              // ✅ Clear error when valid phone number is entered
+              if (errors.phoneNumber && /^\+?\d{7,15}$/.test(e.target.value)) {
+                setErrors({ ...errors, phoneNumber: "" });
+              }
+            }}
+            error={!!errors.phoneNumber}
+            helperText={errors.phoneNumber}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
           />
 
@@ -72,9 +102,15 @@ const PersonalInfo = ({
             type={showPassword ? "text" : "password"}
             placeholder="Create a strong password"
             value={formData?.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
+            onChange={(e) => {
+              setFormData({ ...formData, password: e.target.value });
+              // ✅ Clear error when password is entered
+              if (errors.password && e.target.value) {
+                setErrors({ ...errors, password: "" });
+              }
+            }}
+            error={!!errors.password}
+            helperText={errors.password}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
             InputProps={{
               endAdornment: (
@@ -126,12 +162,21 @@ const PersonalInfo = ({
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm your password"
             value={formData.confirmPassword}
-            onChange={(e) =>
+            onChange={(e) => {
               setFormData({
                 ...formData,
                 confirmPassword: e.target.value,
-              })
-            }
+              });
+              // ✅ Clear error when passwords match
+              if (
+                errors.confirmPassword &&
+                e.target.value === formData.password
+              ) {
+                setErrors({ ...errors, confirmPassword: "" });
+              }
+            }}
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword}
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
             InputProps={{
               endAdornment: (
@@ -160,6 +205,6 @@ const PersonalInfo = ({
       )}
     </Box>
   );
-}
+};
 
-export default PersonalInfo
+export default PersonalInfo;

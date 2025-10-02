@@ -1,36 +1,22 @@
-import React, { useState } from "react"
-import Button from "@mui/material/Button"
-import Card from "@mui/material/Card"
-import CardContent from "@mui/material/CardContent"
-import CardHeader from "@mui/material/CardHeader"
-import LinearProgress from "@mui/material/LinearProgress"
-import Typography from "@mui/material/Typography"
-import Box from "@mui/material/Box"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import PersonIcon from "@mui/icons-material/Person"
-import PlaceIcon from "@mui/icons-material/Place"
-import WorkIcon from "@mui/icons-material/Work"
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
-import PersonalInfo from "./PersonalInfo"
-import Skills from "./Skills"
-import Availability from "./Availability"
-import Location from "./Location"
-import { useDispatch, useSelector } from "react-redux"
-import { signupAction } from "../state/SignUpActions"
-
-const skillCategories = {
-  Technology: ["Web Development", "Mobile Apps", "QA Testing", "DevOps", "Data Analysis", "UI/UX Design"],
-  Creative: ["Photography", "Video Editing", "Graphic Design", "Content Writing", "Music Production", "Animation"],
-  Education: ["Tutoring", "Language Teaching", "Exam Prep", "Workshop Facilitation", "Curriculum Design"],
-  Lifestyle: ["Cooking", "Fitness Coaching", "Gardening", "Interior Design", "Personal Styling"],
-  "Professional Services": ["Legal Advice", "Accounting", "Career Coaching", "Business Consulting", "Marketing"],
-  Others: ["Custom Skill"],
-}
-
-const countries = ["Kenya", "Uganda", "Tanzania", "Rwanda", "Nigeria", "Ghana", "South Africa", "Other"]
-
-const timeSlots = ["Morning (6AM-12PM)", "Afternoon (12PM-6PM)", "Evening (6PM-10PM)", "Night (10PM-6AM)"]
-const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+import React, { useState } from "react";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardHeader from "@mui/material/CardHeader";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PersonIcon from "@mui/icons-material/Person";
+import PlaceIcon from "@mui/icons-material/Place";
+import WorkIcon from "@mui/icons-material/Work";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import PersonalInfo from "./PersonalInfo";
+import Skills from "./Skills";
+import Availability from "./Availability";
+import Location from "./Location";
+import { useDispatch, useSelector } from "react-redux";
+import { signupAction } from "../state/SignUpActions";
 
 export default function NipeNikupeRegistration() {
   const dispatch = useDispatch();
@@ -39,13 +25,16 @@ export default function NipeNikupeRegistration() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [customSkill, setCustomSkill] = useState("");
-  const [availability, setAvailability] = useState({});
+  // const [availability, setAvailability] = useState({});
   const [errors, setErrors] = useState({});
 
-  const { signup, signupResp, availableDate, availableTime } = useSelector((state) => state.SignUpReducer);
+  const { signup, availableDate, availableTime } = useSelector(
+    (state) => state.SignUpReducer
+  );
 
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phoneNumber: "",
     password: "",
@@ -63,11 +52,11 @@ export default function NipeNikupeRegistration() {
 
     if (currentStep === 1) {
       // ✅ Personal Info
-      if (
-        !formData.fullName ||
-        formData.fullName.trim().split(" ").length < 5
-      ) {
-        newErrors.fullName = "*Full name must have more than 4 words";
+      if (!formData.firstName.trim()) {
+        newErrors.firstName = "*First name is required";
+      }
+      if (!formData.lastName.trim()) {
+        newErrors.lastName = "*Last name is required";
       }
       if (!/\S+@\S+\.\S+/.test(formData.email)) {
         newErrors.email = "*Enter a valid email address";
@@ -86,8 +75,7 @@ export default function NipeNikupeRegistration() {
     if (currentStep === 2) {
       // ✅ Location
       if (!formData.country) newErrors.country = "Country is required";
-      if (!formData.cityOrTown)
-        newErrors.cityOrTown = "City/Town is required";
+      if (!formData.cityOrTown) newErrors.cityOrTown = "City/Town is required";
       if (!formData.localityOrArea)
         newErrors.localityOrArea = "Locality/Area is required";
     }
@@ -131,14 +119,25 @@ export default function NipeNikupeRegistration() {
   };
 
   const handleSkillToggle = (skill) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
-    );
+    setSelectedSkills((prev) => {
+      const updated = prev.includes(skill)
+        ? prev.filter((s) => s !== skill)
+        : [...prev, skill];
+
+      // 🔑 also update formData.skills
+      setFormData((fd) => ({ ...fd, skills: updated }));
+      return updated;
+    });
   };
 
   const addCustomSkill = () => {
     if (customSkill.trim() && !selectedSkills.includes(customSkill.trim())) {
-      setSelectedSkills((prev) => [...prev, customSkill.trim()]);
+      setSelectedSkills((prev) => {
+        const updated = [...prev, customSkill.trim()];
+        // 🔑 also update formData.skills
+        setFormData((fd) => ({ ...fd, skills: updated }));
+        return updated;
+      });
       setCustomSkill("");
     }
   };
@@ -152,27 +151,35 @@ export default function NipeNikupeRegistration() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    console.log("🔍 handleSubmit called");
+    console.log("📋 Current formData:", formData);
+    console.log("🎯 Selected skills:", selectedSkills);
+    // console.log("📅 Availability:", availability);
+    console.log("🔒 Signup state:", signup);
+    // console.log("✅ Button is working!");
+    // alert("Button clicked successfully!");
 
-    
+    if (!validateStep()) return;
+
     // ✅ validation: check if passwords match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match");
       return;
     }
-    
-    if (!validateStep()) return;
 
     // ✅ exclude confirmPassword from payload
-    const { confirmPassword, ...cleanFormData } = formData;
+    const { confirmPassword, firstName, lastName, ...cleanFormData } = formData;
 
     const payload = {
       ...cleanFormData,
-      skills: selectedSkills,
-      availableDate,
-      availableTime,
+      fullName: `${firstName.trim()} ${lastName.trim()}`,
+      skills: formData.skills, // now synced
+      availableDate: formData.availableDate,
+      availableTime: formData.availableTime,
     };
+
+    console.log("📦 Submitting payload:", payload);
 
     dispatch(
       signupAction({
@@ -182,13 +189,13 @@ export default function NipeNikupeRegistration() {
           alert("Registration successful!");
           // navigate("/login") if using react-router
         },
-        onFailure: () => {
-          console.error("❌ Signup failed");
-          alert("Registration failed. Please try again.");
+        onFailure: (errorMessage) => {
+          console.error("❌ Signup failed:", errorMessage);
+          setErrors((prev) => ({ ...prev, apiError: errorMessage })); // store API error
         },
       })
     );
-  }
+  };
 
   const getPasswordStrength = (password) => {
     let strength = 0;
@@ -321,98 +328,113 @@ export default function NipeNikupeRegistration() {
             </CardHeader>
             <CardContent sx={{ p: 4 }}>
               {/* <form onSubmit={handleSubmit}> */}
-                {/* Step 1: Personal Information */}
-                <PersonalInfo
-                  currentStep={currentStep}
-                  formData={formData}
-                  setFormData={setFormData}
-                  showPassword={showPassword}
-                  setShowPassword={setShowPassword}
-                  showConfirmPassword={showConfirmPassword}
-                  setShowConfirmPassword={setShowConfirmPassword}
-                  passwordStrength={passwordStrength}
-                  strengthLabels={strengthLabels}
-                  errors={errors}
-                />
+              {/* Step 1: Personal Information */}
+              <PersonalInfo
+                currentStep={currentStep}
+                formData={formData}
+                setFormData={setFormData}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                showConfirmPassword={showConfirmPassword}
+                setShowConfirmPassword={setShowConfirmPassword}
+                passwordStrength={passwordStrength}
+                strengthLabels={strengthLabels}
+                errors={errors}
+                setErrors={setErrors}
+              />
 
-                {/* Step 2: Location */}
-                <Location
-                  currentStep={currentStep}
-                  formData={formData}
-                  setFormData={setFormData}
-                  errors={errors}
-                />
+              {/* Step 2: Location */}
+              <Location
+                currentStep={currentStep}
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                setErrors={setErrors}
+              />
 
-                {/* Step 3: Skills */}
-                <Skills
-                  currentStep={currentStep}
-                  selectedSkills={selectedSkills}
-                  handleSkillToggle={handleSkillToggle}
-                  customSkill={customSkill}
-                  setCustomSkill={setCustomSkill}
-                  addCustomSkill={addCustomSkill}
-                  errors={errors}
-                />
+              {/* Step 3: Skills */}
+              <Skills
+                currentStep={currentStep}
+                selectedSkills={selectedSkills}
+                handleSkillToggle={handleSkillToggle}
+                customSkill={customSkill}
+                setCustomSkill={setCustomSkill}
+                addCustomSkill={addCustomSkill}
+                errors={errors}
+                setErrors={setErrors}
+              />
 
-                {/* Step 4: Availability */}
-                <Availability
-                  currentStep={currentStep}
-                  availability={availability}
-                  handleAvailabilityToggle={handleAvailabilityToggle}
-                  errors={errors}
-                />
+              {/* Step 4: Availability */}
+              <Availability
+                currentStep={currentStep}
+                // handleAvailabilityToggle={handleAvailabilityToggle}
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                setErrors={setErrors}
+              />
 
-                {/* Navigation Buttons */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mt: 4,
-                    pt: 3,
-                    borderTop: 1,
-                    borderColor: "divider",
-                  }}
+              {errors.apiError && (
+                <Typography
+                  variant="body2"
+                  color="error"
+                  sx={{ mb: 2, textAlign: "center", fontWeight: 500 }}
                 >
+                  {errors.apiError}
+                </Typography>
+              )}
+
+              {/* Navigation Buttons */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  mt: 4,
+                  pt: 3,
+                  borderTop: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <Button
+                  type="button"
+                  variant="outlined"
+                  onClick={handlePrevious}
+                  disabled={currentStep === 1}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Previous
+                </Button>
+
+                {currentStep < totalSteps ? (
                   <Button
                     type="button"
-                    variant="outlined"
-                    onClick={handlePrevious}
-                    disabled={currentStep === 1}
-                    sx={{ borderRadius: 2 }}
+                    variant="contained"
+                    onClick={handleNext}
+                    sx={{
+                      borderRadius: 2,
+                      bgcolor: "#0A6802",
+                      "&:hover": { bgcolor: "#085a01" },
+                    }}
                   >
-                    Previous
+                    Next Step
                   </Button>
-
-                  {currentStep < totalSteps ? (
-                    <Button
-                      type="button"
-                      variant="contained"
-                      onClick={handleNext}
-                      sx={{
-                        borderRadius: 2,
-                        bgcolor: "#0A6802",
-                        "&:hover": { bgcolor: "#085a01" },
-                      }}
-                    >
-                      Next Step
-                    </Button>
-                  ) : (
-                    <Button
-                      // type="submit"
-                      type="button" // not submit anymore
-                      onClick={handleSubmit} // ✅ directly call your submit logic
-                      variant="contained"
-                      disabled={signup}
-                      sx={{
-                        borderRadius: 2,
-                        bgcolor: "#0A6802",
-                        "&:hover": { bgcolor: "#085a01" },
-                      }}
-                    >
-                      {signup ? "Registering..." : "Complete Registration"}
-                    </Button>
-                  )}
-                </Box>
+                ) : (
+                  <Button
+                    // type="submit"
+                    type="button" // not submit anymore
+                    onClick={handleSubmit} // ✅ directly call your submit logic
+                    variant="contained"
+                    disabled={signup}
+                    sx={{
+                      borderRadius: 2,
+                      bgcolor: "#0A6802",
+                      "&:hover": { bgcolor: "#085a01" },
+                    }}
+                  >
+                    {signup ? "Registering..." : "Complete Registration"}
+                  </Button>
+                )}
+              </Box>
               {/* </form> */}
             </CardContent>
           </Card>
