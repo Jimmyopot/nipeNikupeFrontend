@@ -1,4 +1,7 @@
+"use client";
+
 import { useState, useEffect } from "react";
+// import Link from "next/link";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -18,7 +21,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAction, checkAuthAction } from "../state/LoginActions";
-import { clearLoginError } from "../state/LoginSlice";
+import { clearLoginError, resetLoginState } from "../state/LoginSlice";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -28,56 +31,41 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // formErrors contains field-level helper text (email/password) and optional api general error
   const [formErrors, setFormErrors] = useState({});
 
-  // Redux state - ensure this selector matches your store key
+  // Redux state
   const { isAuthenticated, loginLoading, loginError, checkingAuth } =
     useSelector((state) => state.LoginReducer);
 
-  // check auth on mount
+  // Check if user is already authenticated on component mount
+
+  // ----------------------DON'T DELETE THIS!!!!!!!!!!!! ----------------------
+  // useEffect(() => {
+  //   dispatch(checkAuthAction());
+  // }, [dispatch]);
+
+  // Redirect if already authenticated
+
   useEffect(() => {
-    dispatch(checkAuthAction());
-  }, [dispatch]);
+    navigate("/dashboard");
+  }, [navigate]);
 
-  // Map Redux loginError -> formErrors so fields show helper text when backend returns 401
+  // ----------------------DON'T DELETE THIS!!!!!!!!!!!! ----------------------
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate('/dashboard'); // Change this to your desired redirect route
+  //   }
+  // }, [isAuthenticated, navigate]);
+
+  // Clear errors when user starts typing
   useEffect(() => {
-    if (!loginError) return;
-
-    // loginError is expected to be an object like { message, status, ... }
-    const msg = loginError.message || "Login failed. Please try again.";
-
-    if (loginError.status === 401) {
-      // Invalid credentials: show under both fields (you can change to only password)
-      setFormErrors({
-        email: "Invalid email or password",
-        password: "Invalid email or password",
-      });
-    } else {
-      // Other errors - show general API error (and optionally under fields)
-      setFormErrors((prev) => ({
-        ...prev,
-        api: msg,
-      }));
+    if (loginError) {
+      dispatch(clearLoginError());
     }
-  }, [loginError]);
+    setFormErrors({});
+  }, [email, password, dispatch, loginError]);
 
-  // Clear login error when user edits fields (clear the Redux error and the local field error)
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    // clear local field error
-    setFormErrors((prev) => ({ ...prev, email: undefined, api: undefined }));
-    // clear global login error in Redux so error doesn't persist
-    if (loginError) dispatch(clearLoginError());
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-    setFormErrors((prev) => ({ ...prev, password: undefined, api: undefined }));
-    if (loginError) dispatch(clearLoginError());
-  };
-
-  // Basic client-side validation
+  // Form validation
   const validateForm = () => {
     const errors = {};
 
@@ -100,24 +88,26 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Clear previous client errors + redux login error
-    setFormErrors({});
-    if (loginError) dispatch(clearLoginError());
+    // Reset any previous errors
+    dispatch(clearLoginError());
 
-    if (!validateForm()) return;
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
 
+    // Dispatch login action
     dispatch(
       loginAction({
         email: email.trim(),
-        password,
+        password: password,
         onSuccess: (response) => {
-          // success - redirect
-          navigate("/dashboard");
+          console.log("✅ Login successful:", response);
+          // Navigation will be handled by useEffect above
         },
-        onFailure: (err) => {
-          // we don't need to handle here because reducer sets loginError
-          // but good to inspect in dev console
-          // console.log("login failed callback", err);
+        onFailure: (error) => {
+          console.log("❌ Login failed:", error);
+          // Error handling is managed by Redux state
         },
       })
     );
@@ -137,10 +127,63 @@ export default function Login() {
         overflow: "hidden",
       }}
     >
+      {/* Decorative background elements */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          pointerEvents: "none",
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: 80,
+            left: 40,
+            width: 288,
+            height: 288,
+            bgcolor: "primary.main",
+            opacity: 0.05,
+            borderRadius: "50%",
+            filter: "blur(48px)",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 80,
+            right: 40,
+            width: 384,
+            height: 384,
+            bgcolor: "secondary.main",
+            opacity: 0.05,
+            borderRadius: "50%",
+            filter: "blur(48px)",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 600,
+            height: 600,
+            bgcolor: "accent.main",
+            opacity: 0.03,
+            borderRadius: "50%",
+            filter: "blur(48px)",
+          }}
+        />
+      </Box>
+
       <Box
         sx={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1 }}
       >
+        {/* Logo/Brand */}
         <Box sx={{ textAlign: "center", mb: 4 }}>
+          {/* <Link href="/" passHref legacyBehavior> */}
           <a style={{ textDecoration: "none" }}>
             <Typography
               variant="h3"
@@ -154,11 +197,13 @@ export default function Login() {
               NipeNikupe
             </Typography>
           </a>
+          {/* </Link> */}
           <Typography sx={{ color: "text.secondary" }}>
             Welcome back! Sign in to continue
           </Typography>
         </Box>
 
+        {/* Login Card */}
         <Card
           sx={{
             boxShadow: 8,
@@ -197,7 +242,7 @@ export default function Login() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 fullWidth
                 variant="outlined"
@@ -207,9 +252,9 @@ export default function Login() {
                 disabled={loginLoading}
                 sx={{
                   backgroundColor: "background.paper",
-                  "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                  // ensure helper text uses theme error color
-                  "& .MuiFormHelperText-root": { color: "error.main" },
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                  },
                 }}
               />
 
@@ -220,7 +265,7 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
-                onChange={handlePasswordChange}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 fullWidth
                 variant="outlined"
@@ -230,8 +275,9 @@ export default function Login() {
                 disabled={loginLoading}
                 sx={{
                   backgroundColor: "background.paper",
-                  "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                  "& .MuiFormHelperText-root": { color: "error.main" },
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                  },
                 }}
                 InputProps={{
                   endAdornment: (
@@ -273,19 +319,43 @@ export default function Login() {
                 </Link>
               </Box>
 
-              {/* General API error (non-401 or additional info) */}
-              {formErrors.api && (
-                <Alert severity="error" sx={{ borderRadius: 2 }}>
-                  {formErrors.api}
+              {/* Display Login Error */}
+              {loginError && (
+                <Alert
+                  severity="error"
+                  sx={{
+                    borderRadius: 2,
+                    "& .MuiAlert-message": {
+                      width: "100%",
+                    },
+                  }}
+                >
+                  <Typography variant="body2">
+                    {loginError.message || "Login failed. Please try again."}
+                  </Typography>
                 </Alert>
               )}
 
-              {/* If you still want the global loginError object display (optional) */}
-              {!formErrors.api && loginError && loginError.status !== 401 && (
-                <Alert severity="error" sx={{ borderRadius: 2 }}>
-                  {loginError.message || "Login failed. Please try again."}
+              {/* Display Loading State */}
+              {/* {checkingAuth && (
+                <Alert
+                  severity="info"
+                  sx={{
+                    borderRadius: 2,
+                    "& .MuiAlert-message": {
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    },
+                  }}
+                >
+                  <CircularProgress size={16} />
+                  <Typography variant="body2">
+                    Checking authentication...
+                  </Typography>
                 </Alert>
-              )}
+              )} */}
 
               {/* Login Button */}
               <Button
@@ -294,7 +364,8 @@ export default function Login() {
                 color="primary"
                 fullWidth
                 size="large"
-                disabled={loginLoading || checkingAuth}
+                // disabled={loginLoading || checkingAuth}
+                disabled={loginLoading}
                 sx={{
                   fontWeight: 600,
                   py: 1.5,
@@ -316,7 +387,6 @@ export default function Login() {
               </Button>
             </Box>
           </CardContent>
-
           <CardActions
             sx={{
               flexDirection: "column",
@@ -334,27 +404,10 @@ export default function Login() {
               >
                 Don't have an account?{" "}
               </Typography>
-              <Link to="/signUp" style={{ textDecoration: "none", }}>
-                <Typography
-                  component="span"
-                  sx={{
-                    textTransform: "none",
-                    textDecoration: "underline",
-                    color: "secondary.main",
-                    cursor: "pointer",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    // alignItems: "center",
-                  }}
-                >
-                  Create Account
-                  <ArrowRightAltIcon sx={{ fontSize: 18, ml: 0.5 }} />
-                </Typography>
-              </Link>
-              {/* <Link to="/signUp">
+              <Link to="/register">
                 <a
                   style={{
-                    color: "secondary.main",
+                    color: "var(--mui-palette-primary-main)",
                     fontWeight: 600,
                     textDecoration: "none",
                     display: "inline-flex",
@@ -366,11 +419,12 @@ export default function Login() {
                   Create Account
                   <ArrowRightAltIcon sx={{ fontSize: 18, ml: 0.5 }} />
                 </a>
-              </Link> */}
+              </Link>
             </Box>
           </CardActions>
         </Card>
 
+        {/* Trust Badge */}
         <Box sx={{ mt: 3, textAlign: "center" }}>
           <Typography
             variant="caption"

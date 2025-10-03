@@ -91,10 +91,41 @@ const PersonalInfo = ({
             sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
           />
 
-          <Typography variant="caption" color="textSecondary">
+          {/* <Typography variant="caption" color="textSecondary">
             Password should be at least 8 characters, include an uppercase
             letter, a number, and a special character.
-          </Typography>
+          </Typography> */}
+
+          {formData.password && (
+            <Box sx={{ mb: -1 }}>
+              <Box sx={{ display: "flex", gap: 0, mb: 1 }}>
+                {[0, 1, 2, 3].map((i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      height: 8,
+                      flex: 1,
+                      borderRadius: 1,
+                      bgcolor:
+                        i < passwordStrength
+                          ? passwordStrength === 1
+                            ? "error.main"
+                            : passwordStrength === 2
+                            ? "warning.main"
+                            : passwordStrength === 3
+                            ? "warning.light"
+                            : "success.main"
+                          : "grey.200",
+                    }}
+                  />
+                ))}
+              </Box>
+              <Typography variant="caption" color="textSecondary">
+                Password strength:{" "}
+                {strengthLabels[passwordStrength - 1] || "Too weak"}
+              </Typography>
+            </Box>
+          )}
 
           <TextField
             fullWidth
@@ -125,8 +156,22 @@ const PersonalInfo = ({
               ),
             }}
           />
-          {formData.password && (
-            <Box sx={{ mt: 1 }}>
+
+          <Typography variant="body2" color="textSecondary" sx={{ mt: -2 }}>
+            Password Requirements:
+            <br />
+            - 8+ characters
+            <br />
+            - 1 uppercase letter (A-Z)
+            <br />
+            - 1 number (0-9)
+            <br />
+            - 1 special character (!@#$%^&*)
+            <br />
+          </Typography>
+
+          {/* {formData.password && (
+            <Box sx={{ mt: 0 }}>
               <Box sx={{ display: "flex", gap: 0.5, mb: 1 }}>
                 {[0, 1, 2, 3].map((i) => (
                   <Box
@@ -154,7 +199,7 @@ const PersonalInfo = ({
                 {strengthLabels[passwordStrength - 1] || "Too weak"}
               </Typography>
             </Box>
-          )}
+          )} */}
 
           <TextField
             fullWidth
