@@ -106,6 +106,7 @@ export default function Login() {
 
     if (!validateForm()) return;
 
+    // ADDED DATABASE ON HOME PC
     dispatch(
       loginAction({
         email: email.trim(),
