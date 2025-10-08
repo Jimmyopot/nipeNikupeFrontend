@@ -35,6 +35,8 @@ import {
   Chat,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import Profile from "./Profile";
 
 // Mock user data (in a real app, this would come from authentication/database)
 const currentUser = {
@@ -125,6 +127,12 @@ export default function Dashboard() {
   const [filteredUsers, setFilteredUsers] = useState(mockUsers);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const navigate = useNavigate();
+
+  const { user } = useSelector(
+    (state) => state.LoginReducer
+  );
+
+  // console.log("Authenticated User:", user);
 
   // Filter users based on search query and location
   const handleSearch = () => {
@@ -249,7 +257,8 @@ export default function Dashboard() {
                   fontSize: { xs: "2rem", md: "3rem" },
                 }}
               >
-                Welcome back, {currentUser.fullName.split(" ")[0]}! 👋
+                {/* Welcome back, {currentUser.fullName.split(" ")[0]}! 👋 */}
+                Welcome back, {user?.fullName.split(" ")[0]}! 👋
               </Typography>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
                 Start your skill exchange journey here
@@ -477,268 +486,7 @@ export default function Dashboard() {
           <Grid container spacing={3}>
             {/* Left Column - User Profile */}
             <Grid item xs={12} lg={4}>
-              <Stack spacing={3}>
-                {/* Profile Card */}
-                <Card elevation={3}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Typography variant="h6">My Profile</Typography>
-                    <Button
-                      variant="text"
-                      size="small"
-                      startIcon={<Edit sx={{ fontSize: "1rem" }} />}
-                      sx={{ minWidth: "auto", px: 1 }}
-                    >
-                      Edit
-                    </Button>
-                  </Box>
-                  <CardContent sx={{ pt: 0 }}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        textAlign: "center",
-                      }}
-                    >
-                      <Avatar
-                        src={currentUser.profilePicture || "/placeholder.svg"}
-                        alt={currentUser.fullName}
-                        sx={{
-                          width: 96,
-                          height: 96,
-                          mb: 2,
-                          border: "4px solid",
-                          borderColor: "primary.light",
-                          fontSize: "1.5rem",
-                        }}
-                      >
-                        {getInitials(currentUser.fullName)}
-                      </Avatar>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        {currentUser.fullName}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 0.5,
-                          mt: 0.5,
-                        }}
-                      >
-                        <LocationOn
-                          sx={{ fontSize: "0.875rem", color: "text.secondary" }}
-                        />
-                        <Typography variant="body2" color="text.secondary">
-                          {currentUser.locality}, {currentUser.county}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box sx={{ pt: 2 }}>
-                      <Divider sx={{ mb: 2 }} />
-                      <Stack spacing={2}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 1,
-                          }}
-                        >
-                          <Email
-                            sx={{
-                              fontSize: "1rem",
-                              color: "text.secondary",
-                              mt: 0.5,
-                            }}
-                          />
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              Email
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{ wordBreak: "break-all" }}
-                            >
-                              {currentUser.email}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 1,
-                          }}
-                        >
-                          <Phone
-                            sx={{
-                              fontSize: "1rem",
-                              color: "text.secondary",
-                              mt: 0.5,
-                            }}
-                          />
-                          <Box sx={{ flex: 1 }}>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              Phone
-                            </Typography>
-                            <Typography variant="body2">
-                              {currentUser.phoneNumber}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Stack>
-                    </Box>
-
-                    <Box sx={{ pt: 2 }}>
-                      <Divider sx={{ mb: 2 }} />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 1,
-                        }}
-                      >
-                        <Star
-                          sx={{ fontSize: "1rem", color: "primary.main" }}
-                        />
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          Skills I Offer
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {currentUser.skillsOffered.map((skill) => (
-                          <Chip
-                            key={skill}
-                            label={skill}
-                            size="small"
-                            sx={{
-                              bgcolor: "primary.main2",
-                              color: "primary.dark",
-                              "& .MuiChip-label": { fontWeight: 500 },
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-
-                    <Box sx={{ pt: 2 }}>
-                      <Divider sx={{ mb: 2 }} />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 1,
-                        }}
-                      >
-                        <Handshake
-                          sx={{ fontSize: "1rem", color: "primary.main" }}
-                        />
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          Skills I Need
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {currentUser.skillsNeeded.map((skill) => (
-                          <Chip
-                            key={skill}
-                            label={skill}
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                              borderColor: "primary.main",
-                              color: "primary.main",
-                              "& .MuiChip-label": { fontWeight: 500 },
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-
-                {/* Quick Stats */}
-                <Card elevation={3}>
-                  <Box sx={{ p: 2 }}>
-                    <Typography variant="h6">Quick Stats</Typography>
-                  </Box>
-                  <CardContent sx={{ pt: 0 }}>
-                    <Stack spacing={2}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <TrendingUp
-                            sx={{ fontSize: "1rem", color: "primary.main" }}
-                          />
-                          <Typography variant="body2">Active Trades</Typography>
-                        </Box>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          3
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <People
-                            sx={{ fontSize: "1rem", color: "primary.main" }}
-                          />
-                          <Typography variant="body2">Completed</Typography>
-                        </Box>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          8
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Star
-                            sx={{ fontSize: "1rem", color: "primary.main" }}
-                          />
-                          <Typography variant="body2">Rating</Typography>
-                        </Box>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          4.9
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Stack>
+              <Profile />
             </Grid>
 
             {/* Right Column - Search Results */}

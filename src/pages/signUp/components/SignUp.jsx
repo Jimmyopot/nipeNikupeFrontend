@@ -82,13 +82,25 @@ export default function NipeNikupeRegistration() {
       }
     }
 
+    // if (currentStep === 2) {
+    //   // ✅ Location
+    //   if (!formData.country) newErrors.country = "Country is required";
+    //   if (!formData.cityOrTown) newErrors.cityOrTown = "City/Town is required";
+    //   if (!formData.localityOrArea)
+    //     newErrors.localityOrArea = "Locality/Area is required";
+    // }
+
     if (currentStep === 2) {
-      // ✅ Location
       if (!formData.country) newErrors.country = "Country is required";
-      if (!formData.cityOrTown) newErrors.cityOrTown = "City/Town is required";
-      if (!formData.localityOrArea)
-        newErrors.localityOrArea = "Locality/Area is required";
+
+      if (formData.country === "Kenya") {
+        if (!formData.cityOrTown) newErrors.cityOrTown = "County is required";
+      } else {
+        if (!formData.localityOrArea)
+          newErrors.localityOrArea = "Town/City is required";
+      }
     }
+
 
     if (currentStep === 3) {
       // ✅ Skills
