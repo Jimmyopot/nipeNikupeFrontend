@@ -2,107 +2,83 @@ import { createSlice } from "@reduxjs/toolkit";
 import { loginAction, logoutAction, checkAuthAction } from "./LoginActions";
 
 const initialState = {
-  // Authentication state
-  isAuthenticated: false,
   user: null,
   token: null,
   email: null,
-  
-  // Loading states
-  loginLoading: false,
-  logoutLoading: false,
+  isAuthenticated: false,
+  loading: false,
   checkingAuth: false,
-  
-  // Response data
-  loginResponse: null,
-  logoutResponse: null,
-  
-  // Error states
-  loginError: null,
+  logoutLoading: false,
+  error: null,
   authError: null,
+  logoutResponse: null,
 };
 
 const loginSlice = createSlice({
   name: "login",
   initialState,
   reducers: {
-    // Synchronous reducers
+    manualLogout: (state) => {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      state.user = null;
+      state.token = null;
+      state.email = null;
+      state.isAuthenticated = false;
+    },
     clearLoginError: (state) => {
-      state.loginError = null;
+      state.error = null;
     },
     clearAuthError: (state) => {
       state.authError = null;
     },
     resetLoginState: (state) => {
-      state.loginLoading = false;
-      state.loginResponse = null;
-      state.loginError = null;
+      return initialState;
     },
-    // Manual logout (for immediate UI updates)
-    manualLogout: (state) => {
-      state.isAuthenticated = false;
-      state.user = null;
-      state.token = null;
-      state.email = null;
-      state.loginResponse = null;
-      state.loginError = null;
-      state.authError = null;
-    }
   },
   extraReducers: (builder) => {
     builder
-      // Login Action Handlers
+      // 🔹 Login Action
       .addCase(loginAction.pending, (state) => {
-        state.loginLoading = true;
-        state.loginError = null;
-        state.loginResponse = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(loginAction.fulfilled, (state, action) => {
-        state.loginLoading = false;
-        state.loginResponse = action.payload;
-        state.loginError = null;
-        
-        // Set authentication state
-        state.isAuthenticated = true;
-        state.token = action.payload.token;
+        state.loading = false;
         state.user = action.payload.user;
-        state.email = localStorage.getItem('userEmail') || null;
+        state.token = action.payload.token;
+        state.email = action.payload.email;
+        state.isAuthenticated = true;
       })
       .addCase(loginAction.rejected, (state, action) => {
-        state.loginLoading = false;
-        state.loginResponse = null;
-        state.loginError = action.payload;
-        
-        // Clear authentication state
-        state.isAuthenticated = false;
-        state.token = null;
-        state.email = null;
-        state.user = null;
+        state.loading = false;
+        state.error = action.payload;
       })
-      
-      // Logout Action Handlers
+
+      // 🔹 Logout Action
       .addCase(logoutAction.pending, (state) => {
         state.logoutLoading = true;
       })
       .addCase(logoutAction.fulfilled, (state, action) => {
         state.logoutLoading = false;
         state.logoutResponse = action.payload;
-        
-        // Clear all authentication state
-        state.isAuthenticated = false;
+
+        // Clear everything
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
         state.user = null;
         state.token = null;
         state.email = null;
-        state.loginResponse = null;
-        state.loginError = null;
+        state.isAuthenticated = false;
+        state.error = null;
         state.authError = null;
       })
       .addCase(logoutAction.rejected, (state, action) => {
         state.logoutLoading = false;
         state.authError = action.payload;
       })
-      
-      // Check Auth Action Handlers
+
+      // 🔹 Check Auth Action (restore from localStorage)
       .addCase(checkAuthAction.pending, (state) => {
         state.checkingAuth = true;
         state.authError = null;
@@ -110,20 +86,15 @@ const loginSlice = createSlice({
       .addCase(checkAuthAction.fulfilled, (state, action) => {
         state.checkingAuth = false;
         state.authError = null;
-        
-        // Set authentication state from stored token
-        state.isAuthenticated = action.payload.isAuthenticated;
+        state.isAuthenticated = true;
         state.token = action.payload.token;
         state.email = action.payload.email;
-        state.user = {
-          email: action.payload.email,
-          token: action.payload.token
-        };
+        state.user = action.payload.user;
       })
       .addCase(checkAuthAction.rejected, (state, action) => {
         state.checkingAuth = false;
         state.authError = action.payload;
-        
+
         // Clear authentication state
         state.isAuthenticated = false;
         state.token = null;
@@ -133,11 +104,11 @@ const loginSlice = createSlice({
   },
 });
 
-export const { 
-  clearLoginError, 
-  clearAuthError, 
-  resetLoginState, 
-  manualLogout 
+export const {
+  manualLogout,
+  clearLoginError,
+  clearAuthError,
+  resetLoginState,
 } = loginSlice.actions;
 
 export default loginSlice.reducer;

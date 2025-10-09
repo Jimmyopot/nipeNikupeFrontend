@@ -1,6 +1,5 @@
 import { Avatar, Box, Button, Card, CardContent, Chip, Divider, Stack, Typography } from '@mui/material';
 import {
-  Search,
   LocationOn,
   Edit,
   Email,
@@ -8,21 +7,23 @@ import {
   Star,
   Handshake,
   People,
-  Notifications,
   TrendingUp,
-  Chat,
 } from "@mui/icons-material";
 import { useSelector } from 'react-redux';
+import stringAvatar from '../../../common/StringAvatar';
+import { useState } from 'react';
+import UpdateProfilePopup from './UpdateProfilePopup';
 
 const Profile = () => {
+  const [open, setOpen] = useState(false);
+
     const { user } = useSelector((state) => state.LoginReducer);
 
-    const getInitials = (name) => {
-      return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase();
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
     };
 
     return (
@@ -43,6 +44,7 @@ const Profile = () => {
               size="small"
               startIcon={<Edit sx={{ fontSize: "1rem" }} />}
               sx={{ minWidth: "auto", px: 1 }}
+              onClick={handleClickOpen}
             >
               Edit
             </Button>
@@ -60,6 +62,7 @@ const Profile = () => {
                 // src={currentUser.profilePicture || "/placeholder.svg"}
                 src=""
                 alt={user?.fullName}
+                {...stringAvatar(user?.fullName)}
                 sx={{
                   width: 96,
                   height: 96,
@@ -69,7 +72,7 @@ const Profile = () => {
                   fontSize: "1.5rem",
                 }}
               >
-                {getInitials(user?.fullName)}
+                {/* {stringAvatar("user?.fullName")} */}
               </Avatar>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 {user?.fullName}
@@ -138,9 +141,7 @@ const Profile = () => {
                     <Typography variant="caption" color="text.secondary">
                       Phone
                     </Typography>
-                    <Typography variant="body2">
-                      {user?.phoneNumber}
-                    </Typography>
+                    <Typography variant="body2">{user?.phoneNumber}</Typography>
                   </Box>
                 </Box>
               </Stack>
@@ -268,6 +269,11 @@ const Profile = () => {
             </Stack>
           </CardContent>
         </Card>
+
+        <UpdateProfilePopup 
+          open={open} 
+          handleClose={handleClose} 
+        />
       </Stack>
     );
 }

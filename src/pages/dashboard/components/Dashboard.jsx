@@ -37,6 +37,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Profile from "./Profile";
+import getFirstName from "../../../common/GetFirstName";
+import stringAvatar from "../../../common/StringAvatar";
+import Navbar from "./Navbar";
 
 // Mock user data (in a real app, this would come from authentication/database)
 const currentUser = {
@@ -132,7 +135,7 @@ export default function Dashboard() {
     (state) => state.LoginReducer
   );
 
-  // console.log("Authenticated User:", user);
+  console.log("Authenticated User:", user);
 
   // Filter users based on search query and location
   const handleSearch = () => {
@@ -173,75 +176,7 @@ export default function Dashboard() {
       }}
     >
       {/* Header */}
-      <Paper
-        elevation={2}
-        sx={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          backdropFilter: "blur(8px)",
-          //   backgroundColor: 'rgba(255, 255, 255, 0.95)'
-          backgroundColor: "primary.main2",
-        }}
-      >
-        <Container maxWidth="xl">
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              py: 2,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                cursor: "pointer",
-              }}
-              onClick={() => navigate("/")}
-            >
-              <Box
-                sx={{
-                  p: 1,
-                  bgcolor: "primary.main",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Handshake sx={{ color: "white", fontSize: "1.25rem" }} />
-              </Box>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                NipeNikupe
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Badge badgeContent=" " color="primary" variant="dot">
-                <IconButton>
-                  <Notifications />
-                </IconButton>
-              </Badge>
-              <Avatar
-                src={currentUser.profilePicture || "/placeholder.svg"}
-                alt={currentUser.fullName}
-                sx={{
-                  width: 36,
-                  height: 36,
-                  cursor: "pointer",
-                  border: "2px solid",
-                  borderColor: "primary.light",
-                }}
-                onClick={() => navigate("/dashboard")}
-              >
-                {getInitials(currentUser.fullName)}
-              </Avatar>
-            </Box>
-          </Box>
-        </Container>
-      </Paper>
+      <Navbar />
 
       {/* Main Content */}
       <Box sx={{ py: 4, bgcolor: "primary.main2" }}>
@@ -567,7 +502,8 @@ export default function Dashboard() {
                             <Box sx={{ display: "flex", gap: 2, flex: 1 }}>
                               <Avatar
                                 src={user.profilePicture || "/placeholder.svg"}
-                                alt={user.name}
+                                {...stringAvatar(currentUser?.fullName)}
+                                alt={currentUser?.fullName}
                                 sx={{
                                   width: 64,
                                   height: 64,
@@ -575,14 +511,14 @@ export default function Dashboard() {
                                   borderColor: "primary.light",
                                 }}
                               >
-                                {getInitials(user.name)}
+                                {/* {getFirstName(user?.name)} */}
                               </Avatar>
                               <Box sx={{ flex: 1, minWidth: 0 }}>
                                 <Typography
                                   variant="h6"
                                   sx={{ fontWeight: 600, mb: 0.5 }}
                                 >
-                                  {user.name}
+                                  {user?.name}
                                 </Typography>
                                 <Box
                                   sx={{

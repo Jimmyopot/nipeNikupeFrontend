@@ -32,7 +32,7 @@ export default function Login() {
   const [formErrors, setFormErrors] = useState({});
 
   // Redux state - ensure this selector matches your store key
-  const { isAuthenticated, loginLoading, loginError, checkingAuth } =
+  const { isAuthenticated, loading, error, checkingAuth } =
     useSelector((state) => state.LoginReducer);
 
   // check auth on mount
@@ -42,12 +42,12 @@ export default function Login() {
 
   // Map Redux loginError -> formErrors so fields show helper text when backend returns 401
   useEffect(() => {
-    if (!loginError) return;
+    if (!error) return;
 
-    // loginError is expected to be an object like { message, status, ... }
-    const msg = loginError.message || "Login failed. Please try again.";
+    // error is expected to be an object like { message, status, ... }
+    const msg = error.message || "Login failed. Please try again.";
 
-    if (loginError.status === 401) {
+    if (error.status === 401) {
       // Invalid credentials: show under both fields (you can change to only password)
       setFormErrors({
         email: "Invalid email or password",
@@ -60,7 +60,7 @@ export default function Login() {
         api: msg,
       }));
     }
-  }, [loginError]);
+  }, [error]);
 
   // Clear login error when user edits fields (clear the Redux error and the local field error)
   const handleEmailChange = (e) => {
@@ -68,13 +68,13 @@ export default function Login() {
     // clear local field error
     setFormErrors((prev) => ({ ...prev, email: undefined, api: undefined }));
     // clear global login error in Redux so error doesn't persist
-    if (loginError) dispatch(clearLoginError());
+    if (error) dispatch(clearLoginError());
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     setFormErrors((prev) => ({ ...prev, password: undefined, api: undefined }));
-    if (loginError) dispatch(clearLoginError());
+    if (error) dispatch(clearLoginError());
   };
 
   // Basic client-side validation
@@ -102,7 +102,7 @@ export default function Login() {
 
     // Clear previous client errors + redux login error
     setFormErrors({});
-    if (loginError) dispatch(clearLoginError());
+    if (error) dispatch(clearLoginError());
 
     if (!validateForm()) return;
 
@@ -123,6 +123,12 @@ export default function Login() {
       })
     );
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <Box
@@ -205,7 +211,7 @@ export default function Login() {
                 size="medium"
                 error={!!formErrors.email}
                 helperText={formErrors.email}
-                disabled={loginLoading}
+                disabled={loading}
                 sx={{
                   backgroundColor: "background.paper",
                   "& .MuiOutlinedInput-root": { borderRadius: 2 },
@@ -228,7 +234,7 @@ export default function Login() {
                 size="medium"
                 error={!!formErrors.password}
                 helperText={formErrors.password}
-                disabled={loginLoading}
+                disabled={loading}
                 sx={{
                   backgroundColor: "background.paper",
                   "& .MuiOutlinedInput-root": { borderRadius: 2 },
@@ -281,10 +287,10 @@ export default function Login() {
                 </Alert>
               )}
 
-              {/* If you still want the global loginError object display (optional) */}
-              {!formErrors.api && loginError && loginError.status !== 401 && (
+              {/* If you still want the global error object display (optional) */}
+              {!formErrors.api && error && error.status !== 401 && (
                 <Alert severity="error" sx={{ borderRadius: 2 }}>
-                  {loginError.message || "Login failed. Please try again."}
+                  {error.message || "Login failed. Please try again."}
                 </Alert>
               )}
 
@@ -295,7 +301,7 @@ export default function Login() {
                 color="primary"
                 fullWidth
                 size="large"
-                disabled={loginLoading || checkingAuth}
+                disabled={loading || checkingAuth}
                 sx={{
                   fontWeight: 600,
                   py: 1.5,
@@ -306,14 +312,14 @@ export default function Login() {
                   position: "relative",
                 }}
                 endIcon={
-                  loginLoading ? (
+                  loading ? (
                     <CircularProgress size={20} color="inherit" />
                   ) : (
                     <ArrowRightAltIcon sx={{ fontSize: 22 }} />
                   )
                 }
               >
-                {loginLoading ? "Signing In..." : "Sign In"}
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </Box>
           </CardContent>
@@ -335,7 +341,7 @@ export default function Login() {
               >
                 Don't have an account?{" "}
               </Typography>
-              <Link to="/signUp" style={{ textDecoration: "none", }}>
+              <Link to="/signUp" style={{ textDecoration: "none" }}>
                 <Typography
                   component="span"
                   sx={{

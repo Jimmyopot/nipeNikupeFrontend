@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllCountiesAction, getAllUsersAction } from "./CommonActions";
+import { getAllCountiesAction, getAllUsersAction, updateProfileAction } from "./CommonActions";
 
 const initialState = {
   getAllUsers: false,
@@ -7,6 +7,9 @@ const initialState = {
 
   getAllCounties: false,
   getAllCountiesResp: null,
+
+  updateProfile: false,
+  updateProfileResp: null,
 };
 
 const commonSlice = createSlice({
@@ -42,7 +45,20 @@ const commonSlice = createSlice({
       .addCase(getAllCountiesAction.rejected, (state, action) => {
         state.getAllCounties = false;
         state.getAllCountiesResp = action.payload;
-      });
+      })
+
+      .addCase(updateProfileAction.pending, (state) => {
+        state.updateProfile = true;
+        state.updateProfileResp = null;
+      })
+      .addCase(updateProfileAction.fulfilled, (state, action) => {
+        state.updateProfile = false;
+        state.updateProfileResp = action.payload;
+      })
+      .addCase(updateProfileAction.rejected, (state, action) => {
+        state.updateProfile = false;
+        state.updateProfileResp = action.payload;
+      })
   },
 });
 

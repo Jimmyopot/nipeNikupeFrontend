@@ -4,8 +4,16 @@ import IndexPage from './pages/landingPage/IndexPage';
 import SignUpPage from './pages/signUp/SignUpPage';
 import LoginPage from './pages/login/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { checkAuthAction } from './pages/login/state/LoginActions';
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuthAction());
+  }, [dispatch]);
 
   return (
     <>

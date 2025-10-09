@@ -33,3 +33,19 @@ export const getAllCountiesAction = createAsyncThunk(
     }
   }
 );
+
+export const updateProfileAction = createAsyncThunk(
+  "common/updateProfile",
+  async ({ userId, onSuccess, onFailure }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        config.apiUrl + `users/UpdateProfile/${userId}`
+      );
+      onSuccess(response.data);
+      return response.data;
+    } catch (error) {
+      onFailure();
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
