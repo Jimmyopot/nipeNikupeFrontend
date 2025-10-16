@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllCountiesAction, getAllUsersAction, updateProfileAction } from "./CommonActions";
+import { getAllCountiesAction, getAllUsersAction, getSkillsGroupedByCategoryAction, updateProfileAction } from "./CommonActions";
 
 const initialState = {
   getAllUsers: false,
@@ -10,6 +10,9 @@ const initialState = {
 
   updateProfile: false,
   updateProfileResp: null,
+
+  getSkillsGroupedByCategory: false,
+  getSkillsGroupedByCategoryResp: null,
 };
 
 const commonSlice = createSlice({
@@ -59,6 +62,19 @@ const commonSlice = createSlice({
         state.updateProfile = false;
         state.updateProfileResp = action.payload;
       })
+
+      .addCase(getSkillsGroupedByCategoryAction.pending, (state) => {
+        state.getSkillsGroupedByCategory = true;
+        state.getSkillsGroupedByCategoryResp = null;
+      })
+      .addCase(getSkillsGroupedByCategoryAction.fulfilled, (state, action) => {
+        state.getSkillsGroupedByCategory = false;
+        state.getSkillsGroupedByCategoryResp = action.payload;
+      })
+      .addCase(getSkillsGroupedByCategoryAction.rejected, (state, action) => {
+        state.getSkillsGroupedByCategory = false;
+        state.getSkillsGroupedByCategoryResp = action.payload;
+      });
   },
 });
 

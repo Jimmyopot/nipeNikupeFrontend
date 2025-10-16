@@ -49,3 +49,17 @@ export const updateProfileAction = createAsyncThunk(
     }
   }
 );
+
+export const getSkillsGroupedByCategoryAction = createAsyncThunk(
+  "common/getSkillsGroupedByCategory",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${config.apiUrl}utils/GetSkillsGroupedByCategory`
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to fetch skills");
+    }
+  }
+);

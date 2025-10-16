@@ -7,6 +7,7 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { checkAuthAction } from './pages/login/state/LoginActions';
+// import { ProtectedRoute, PublicRoute } from "./common/protected/ProtectedRoute";
 
 function App() {
   const dispatch = useDispatch();
@@ -19,9 +20,24 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<IndexPage />} />
-        <Route path="/signUp" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/signUp"
+          element={
+              <SignUpPage />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+              <LoginPage />
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+              <DashboardPage />
+          }
+        />
       </Routes>
     </>
   );
