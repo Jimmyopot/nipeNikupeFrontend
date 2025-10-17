@@ -26,20 +26,19 @@ export default function NipeNikupeRegistration() {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState([]);
   const [customSkill, setCustomSkill] = useState("");
   // const [availability, setAvailability] = useState({});
   const [errors, setErrors] = useState({});
 
-  const { 
-    signup, 
-    availableDate, 
+  const {
+    signup,
+    availableDate,
     availableTime,
     checkingUniqueness,
     uniquenessResult,
     uniquenessError,
     emailConflict,
-    phoneConflict
+    phoneConflict,
   } = useSelector((state) => state.SignUpReducer);
 
   const [formData, setFormData] = useState({
@@ -101,10 +100,9 @@ export default function NipeNikupeRegistration() {
       }
     }
 
-
     if (currentStep === 3) {
       // ✅ Skills
-      if (selectedSkills.length < 1) {
+      if (!formData.skills || formData.skills.length < 1) {
         newErrors.skills = "Please select at least one skill";
       }
     }
@@ -129,33 +127,39 @@ export default function NipeNikupeRegistration() {
   // Function to check if user is unique
   const checkUserUniqueness = () => {
     return new Promise((resolve, reject) => {
-      dispatch(checkUserUniqueAction({
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        onSuccess: (response) => {
-          console.log('✅ User is unique:', response);
-          resolve(response);
-        },
-        onFailure: ({ message, errorData, status }) => {
-          console.log('❌ User uniqueness check failed:', { message, errorData, status });
-          
-          // Set specific error messages based on conflicts
-          let newErrors = {};
-          if (errorData?.emailConflict) {
-            newErrors.email = "This email is already registered";
-          }
-          if (errorData?.phoneConflict) {
-            newErrors.phoneNumber = "This phone number is already registered";
-          }
-          
-          setErrors(prev => ({
-            ...prev,
-            ...newErrors
-          }));
-          
-          reject({ message, errorData, status });
-        }
-      }));
+      dispatch(
+        checkUserUniqueAction({
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          onSuccess: (response) => {
+            console.log("✅ User is unique:", response);
+            resolve(response);
+          },
+          onFailure: ({ message, errorData, status }) => {
+            console.log("❌ User uniqueness check failed:", {
+              message,
+              errorData,
+              status,
+            });
+
+            // Set specific error messages based on conflicts
+            let newErrors = {};
+            if (errorData?.emailConflict) {
+              newErrors.email = "This email is already registered";
+            }
+            if (errorData?.phoneConflict) {
+              newErrors.phoneNumber = "This phone number is already registered";
+            }
+
+            setErrors((prev) => ({
+              ...prev,
+              ...newErrors,
+            }));
+
+            reject({ message, errorData, status });
+          },
+        })
+      );
     });
   };
 
@@ -170,16 +174,15 @@ export default function NipeNikupeRegistration() {
       try {
         // Clear any previous uniqueness errors
         dispatch(clearUniquenessCheck());
-        
+
         // Check if user is unique
         await checkUserUniqueness();
-        
+
         // If we get here, user is unique, proceed to next step
-        console.log('✅ User uniqueness verified, proceeding to next step');
-        
+        console.log("✅ User uniqueness verified, proceeding to next step");
       } catch (error) {
         // User is not unique, errors have been set, don't proceed
-        console.log('❌ Cannot proceed - user is not unique');
+        console.log("❌ Cannot proceed - user is not unique");
         return;
       }
     }
@@ -197,27 +200,25 @@ export default function NipeNikupeRegistration() {
   };
 
   const handleSkillToggle = (skill) => {
-    setSelectedSkills((prev) => {
-      const updated = prev.includes(skill)
-        ? prev.filter((s) => s !== skill)
-        : [...prev, skill];
-
-      // 🔑 also update formData.skills
-      setFormData((fd) => ({ ...fd, skills: updated }));
-      return updated;
+    setFormData((fd) => {
+      const current = fd.skills || [];
+      const updated = current.includes(skill)
+        ? current.filter((s) => s !== skill)
+        : [...current, skill];
+      return { ...fd, skills: updated };
     });
   };
 
   const addCustomSkill = () => {
-    if (customSkill.trim() && !selectedSkills.includes(customSkill.trim())) {
-      setSelectedSkills((prev) => {
-        const updated = [...prev, customSkill.trim()];
-        // 🔑 also update formData.skills
-        setFormData((fd) => ({ ...fd, skills: updated }));
-        return updated;
-      });
-      setCustomSkill("");
-    }
+    const name = customSkill.trim();
+    if (!name) return;
+    setFormData((fd) => {
+      const current = fd.skills || [];
+      if (current.includes(name)) return fd;
+      const updated = [...current, name];
+      return { ...fd, skills: updated };
+    });
+    setCustomSkill("");
   };
 
   const handleAvailabilityToggle = (day, timeSlot) => {
@@ -232,22 +233,22 @@ export default function NipeNikupeRegistration() {
   // Function to clear uniqueness errors when user modifies email/phone
   const handleFormDataChange = (field, value) => {
     // Update form data
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear uniqueness errors when user changes email or phone
-    if (field === 'email' || field === 'phoneNumber') {
+    if (field === "email" || field === "phoneNumber") {
       dispatch(clearUniquenessCheck());
-      
+
       // Clear specific field errors
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
-        if (field === 'email') {
+        if (field === "email") {
           delete newErrors.email;
         }
-        if (field === 'phoneNumber') {
+        if (field === "phoneNumber") {
           delete newErrors.phoneNumber;
         }
         return newErrors;
@@ -451,8 +452,8 @@ export default function NipeNikupeRegistration() {
               {/* Step 3: Skills */}
               <Skills
                 currentStep={currentStep}
-                selectedSkills={selectedSkills}
-                handleSkillToggle={handleSkillToggle}
+                formData={formData}
+                setFormData={setFormData}
                 customSkill={customSkill}
                 setCustomSkill={setCustomSkill}
                 addCustomSkill={addCustomSkill}
@@ -472,34 +473,70 @@ export default function NipeNikupeRegistration() {
 
               {/* Display Uniqueness Check Errors */}
               {(emailConflict || phoneConflict || uniquenessError) && (
-                <Box sx={{ mt: 3, p: 2, bgcolor: "", borderRadius: 1, border: "1px solid", borderColor: "error.main" }}>
-                  <Typography variant="body2" color="error.dark" sx={{ fontWeight: 600, mb: 1 }}>
+                <Box
+                  sx={{
+                    mt: 3,
+                    p: 2,
+                    bgcolor: "",
+                    borderRadius: 1,
+                    border: "1px solid",
+                    borderColor: "error.main",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    color="error.dark"
+                    sx={{ fontWeight: 600, mb: 1 }}
+                  >
                     Registration Issues:
                   </Typography>
                   {emailConflict && (
-                    <Typography variant="body2" color="error.dark" sx={{ mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      color="error.dark"
+                      sx={{ mb: 0.5 }}
+                    >
                       • Email address is already registered
                     </Typography>
                   )}
                   {phoneConflict && (
-                    <Typography variant="body2" color="error.dark" sx={{ mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      color="error.dark"
+                      sx={{ mb: 0.5 }}
+                    >
                       • Phone number is already registered
                     </Typography>
                   )}
                   {uniquenessError && !emailConflict && !phoneConflict && (
                     <Typography variant="body2" color="error.dark">
-                      • {uniquenessError.message || "Unable to verify account uniqueness"}
+                      •{" "}
+                      {uniquenessError.message ||
+                        "Unable to verify account uniqueness"}
                     </Typography>
                   )}
-                  <Typography variant="caption" color="error.dark" sx={{ mt: 1, display: 'block' }}>
-                    Please use different credentials or login if you already have an account.
+                  <Typography
+                    variant="caption"
+                    color="error.dark"
+                    sx={{ mt: 1, display: "block" }}
+                  >
+                    Please use different credentials or login if you already
+                    have an account.
                   </Typography>
                 </Box>
               )}
 
               {/* Show loading state for uniqueness check */}
               {checkingUniqueness && (
-                <Box sx={{ mt: 2, p: 2, bgcolor: "info.light", borderRadius: 1, textAlign: 'center' }}>
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    bgcolor: "info.light",
+                    borderRadius: 1,
+                    textAlign: "center",
+                  }}
+                >
                   <Typography variant="body2" color="info.dark">
                     🔍 Checking if email and phone number are available...
                   </Typography>
@@ -539,10 +576,9 @@ export default function NipeNikupeRegistration() {
                       "&:hover": { bgcolor: "#085a01" },
                     }}
                   >
-                    {checkingUniqueness && currentStep === 1 
-                      ? "Checking availability..." 
-                      : "Next Step"
-                    }
+                    {checkingUniqueness && currentStep === 1
+                      ? "Checking availability..."
+                      : "Next Step"}
                   </Button>
                 ) : (
                   <Button

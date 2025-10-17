@@ -13,31 +13,22 @@ import {
   FormControl,
   InputLabel,
   InputAdornment,
-  Badge,
-  IconButton,
   Grid,
   Container,
-  Paper,
   Divider,
   Stack,
 } from "@mui/material";
 import {
   Search,
   LocationOn,
-  Edit,
-  Email,
-  Phone,
   Star,
   Handshake,
   People,
-  Notifications,
-  TrendingUp,
   Chat,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Profile from "./Profile";
-import getFirstName from "../../../common/GetFirstName";
 import stringAvatar from "../../../common/StringAvatar";
 import Navbar from "./Navbar";
 
@@ -418,14 +409,12 @@ export default function Dashboard() {
             </Card>
           </Box>
 
-          <Grid container spacing={3}>
-            {/* Left Column - User Profile */}
-            <Grid item xs={12} lg={4}>
+          <Box sx={{ width: "100%", display: "flex", flexDirection: { xs: "column-reverse", md: "row" }, gap: 2, mt: 2 }}>
+            <Box sx={{ width: { xs: "100%", md: "35%" } }}>
               <Profile />
-            </Grid>
+            </Box>
 
-            {/* Right Column - Search Results */}
-            <Grid item xs={12} lg={8}>
+            <Box sx={{ width: { xs: "100%", md: "65%" } }}>
               <Box>
                 <Box
                   sx={{
@@ -677,8 +666,9 @@ export default function Dashboard() {
                   </Stack>
                 )}
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
+
         </Container>
       </Box>
     </Box>

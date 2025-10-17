@@ -15,26 +15,24 @@ import {
   Paper,
   Fade,
   useTheme,
-  useMediaQuery,
+  useMediaQuery
 } from "@mui/material";
 import {
   Check as CheckIcon,
   Search as SearchIcon,
-  Close as CloseIcon,
+  Close as CloseIcon
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { getSkillsGroupedByCategoryAction } from "../../../common/state/CommonActions";
 
-const Skills = (props) => {
-  const {
-    currentStep,
-    formData = { skills: [] },
-    setFormData = null,
-    errors = {},
-    // optional parent-managed props
-    selectedSkills: parentSelectedSkills,
-    handleSkillToggle: parentHandleSkillToggle,
-  } = props;
+
+
+const Skills = ({
+  currentStep,
+  formData = { skills: [] },
+  setFormData = () => {},
+  errors = {},
+}) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -47,32 +45,32 @@ const Skills = (props) => {
 
   // Category icons mapping
   const CATEGORY_ICONS = {
-    AfricanMarket: "🌍",
-    ArtsCrafts: "🎨",
-    BusinessEntrepreneurship: "💼",
-    Certifications: "📜",
-    CreativeArtistic: "🎭",
-    DigitalOnline: "💻",
-    EducationTeaching: "📚",
-    EmergingTechnology: "🚀",
-    Engineering: "⚙️",
-    EnvironmentalSustainability: "🌱",
-    HealthWellness: "🏥",
-    HomePractical: "🏠",
-    LanguageCommunication: "💬",
-    LegalRegulatory: "⚖️",
-    LifestyleLeisure: "🎯",
-    ManagementLeadership: "👔",
-    MarketingBranding: "📈",
-    MiscellaneousUnique: "🔧",
+    "AfricanMarket": "🌍",
+    "ArtsCrafts": "🎨",
+    "BusinessEntrepreneurship": "💼",
+    "Certifications": "📜",
+    "CreativeArtistic": "🎭",
+    "DigitalOnline": "💻",
+    "EducationTeaching": "📚",
+    "EmergingTechnology": "🚀",
+    "Engineering": "⚙️",
+    "EnvironmentalSustainability": "🌱",
+    "HealthWellness": "🏥",
+    "HomePractical": "🏠",
+    "LanguageCommunication": "💬",
+    "LegalRegulatory": "⚖️",
+    "LifestyleLeisure": "🎯",
+    "ManagementLeadership": "👔",
+    "MarketingBranding": "📈",
+    "MiscellaneousUnique": "🔧",
     "MusicPerforming Arts": "🎵",
-    PersonalDevelopment: "🌟",
-    ProfessionalBusiness: "💼",
+    "PersonalDevelopment": "🌟",
+    "ProfessionalBusiness": "💼",
     "SalesCustomer Service": "🛒",
-    ScienceResearch: "🔬",
-    SportsOutdoor: "⚽",
-    TechnicalIT: "💻",
-    WritingContent: "✍️",
+    "ScienceResearch": "🔬",
+    "SportsOutdoor": "⚽",
+    "TechnicalIT": "💻",
+    "WritingContent": "✍️"
   };
 
   // Transform API data to match component structure
@@ -81,11 +79,11 @@ const Skills = (props) => {
   // Flatten all skills for autocomplete
   const ALL_SKILLS = Object.entries(SKILLS_DATABASE).flatMap(
     ([category, skills]) =>
-      (skills || []).map((skillObj) => ({
-        skill: skillObj.name,
-        category: category,
+      (skills || []).map((skillObj) => ({ 
+        skill: skillObj.name, 
+        category: category, 
         icon: CATEGORY_ICONS[category] || "🔹",
-        id: skillObj.id,
+        id: skillObj.id
       }))
   );
 
@@ -98,87 +96,23 @@ const Skills = (props) => {
   const [filteredSkills, setFilteredSkills] = useState([]);
   const searchInputRef = useRef(null);
 
-  // Source of truth for selected skills comes from formData.skills
-  const effectiveSelectedSkills =
-    formData && formData.skills ? formData.skills : [];
-
-  // Debug: log parent formData.skills changes
-  useEffect(() => {
-    console.debug("parent formData.skills changed:", formData.skills);
-  }, [formData.skills]);
-
-  // Debug: log parentSelectedSkills changes
-  useEffect(() => {
-    console.debug("parentSelectedSkills prop changed:", parentSelectedSkills);
-  }, [parentSelectedSkills]);
-
   // Helper functions
-  /**
-   * Add a skill to selection.
-   * @param {string|object} skill
-   */
   const addSkill = (skill) => {
-    let skillName;
-    if (typeof skill === "string") {
-      skillName = skill;
-    } else if (skill && (skill.skill || skill.name)) {
-      skillName = skill.skill || skill.name;
-    } else {
-      skillName = String(skill);
-    }
-
-    // If parent provides a toggle handler, use it
-    if (parentHandleSkillToggle) {
-      const currentParent = formData && formData.skills ? formData.skills : [];
-      if (currentParent.includes(skillName) || currentParent.length >= 5) {
-        setSkillSearch("");
-        setShowSuggestions(false);
-        return;
-      }
-      console.debug("addSkill -> calling parentHandleSkillToggle", skillName);
-      parentHandleSkillToggle(skillName);
-      setSkillSearch("");
-      setShowSuggestions(false);
-      return;
-    }
-
-    // Use formData as source of truth
-    const current = formData && formData.skills ? formData.skills : [];
-    if (current.includes(skillName) || current.length >= 5) {
-      setSkillSearch("");
-      setShowSuggestions(false);
-      return;
-    }
-    const newSkills = [...current, skillName];
-    console.debug("addSkill: adding", skillName, "->", newSkills);
-    if (setFormData) {
-      setFormData({ ...formData, skills: newSkills });
+    if (formData.skills.length < 5 && !formData.skills.includes(skill)) {
+      setFormData({
+        ...formData,
+        skills: [...formData.skills, skill],
+      });
     }
     setSkillSearch("");
     setShowSuggestions(false);
   };
 
-  /**
-   * Remove a skill from selection.
-   * @param {string} skillToRemove
-   */
   const removeSkill = (skillToRemove) => {
-    // If parent handler exists, call it (toggle behavior)
-    if (parentHandleSkillToggle) {
-      console.debug(
-        "removeSkill -> calling parentHandleSkillToggle",
-        skillToRemove
-      );
-      parentHandleSkillToggle(skillToRemove);
-      return;
-    }
-
-    const current = formData && formData.skills ? formData.skills : [];
-    const newSkills = current.filter((s) => s !== skillToRemove);
-    console.debug("removeSkill: removing", skillToRemove, "->", newSkills);
-    if (setFormData) {
-      setFormData({ ...formData, skills: newSkills });
-    }
+    setFormData({
+      ...formData,
+      skills: formData.skills.filter((skill) => skill !== skillToRemove),
+    });
   };
 
   // Filter skills based on search
@@ -222,7 +156,7 @@ const Skills = (props) => {
           </Box>
 
           {/* Selected Skills Display */}
-          {effectiveSelectedSkills.length > 0 && (
+          {formData.skills.length > 0 && (
             <Paper
               elevation={0}
               sx={{
@@ -243,16 +177,16 @@ const Skills = (props) => {
                   variant="body2"
                   sx={{ color: "#0A6802", fontWeight: "medium" }}
                 >
-                  Selected Skills ({effectiveSelectedSkills.length}/5)
+                  Selected Skills ({formData.skills.length}/5)
                 </Typography>
-                {effectiveSelectedSkills.length === 5 && (
+                {formData.skills.length === 5 && (
                   <Typography variant="caption" sx={{ color: "warning.main" }}>
                     Maximum reached
                   </Typography>
                 )}
               </Box>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {effectiveSelectedSkills.map((skill) => (
+                {formData.skills.map((skill) => (
                   <Chip
                     key={skill}
                     label={skill}
@@ -271,19 +205,6 @@ const Skills = (props) => {
                   />
                 ))}
               </Box>
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                  Debug effectiveSelectedSkills:{" "}
-                  {JSON.stringify(effectiveSelectedSkills)}
-                </Typography>
-                <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                  Debug parentSelectedSkills:{" "}
-                  {JSON.stringify(parentSelectedSkills)}
-                </Typography>
-                <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                  Debug formData.skills: {JSON.stringify(formData.skills)}
-                </Typography>
-              </Box>
             </Paper>
           )}
 
@@ -299,7 +220,7 @@ const Skills = (props) => {
               value={skillSearch}
               onChange={(e) => setSkillSearch(e.target.value)}
               onFocus={() => skillSearch && setShowSuggestions(true)}
-              disabled={effectiveSelectedSkills.length >= 5}
+              disabled={formData.skills.length >= 5}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -333,11 +254,8 @@ const Skills = (props) => {
                     <Button
                       key={index}
                       fullWidth
-                      onClick={() => {
-                        console.debug("suggestion click", item.skill);
-                        addSkill(item.skill);
-                      }}
-                      disabled={effectiveSelectedSkills.includes(item.skill)}
+                      onClick={() => addSkill(item.skill)}
+                      disabled={formData.skills.includes(item.skill)}
                       sx={{
                         px: 2,
                         py: 1.5,
@@ -374,7 +292,7 @@ const Skills = (props) => {
                           </Typography>
                         </Box>
                       </Box>
-                      {effectiveSelectedSkills.includes(item.skill) && (
+                      {formData.skills.includes(item.skill) && (
                         <CheckIcon sx={{ color: "#0A6802" }} />
                       )}
                     </Button>
@@ -456,68 +374,52 @@ const Skills = (props) => {
               }}
             >
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {SKILLS_DATABASE[selectedCategory]
-                  ? SKILLS_DATABASE[selectedCategory].map((skillObj) => {
-                      const skillName = skillObj.name;
-                      const isSelected =
-                        effectiveSelectedSkills.includes(skillName);
-                      const isDisabled =
-                        effectiveSelectedSkills.length >= 5 && !isSelected;
+                {SKILLS_DATABASE[selectedCategory] ? SKILLS_DATABASE[selectedCategory].map((skillObj) => {
+                  const skillName = skillObj.name;
+                  const isSelected = formData.skills.includes(skillName);
+                  const isDisabled = formData.skills.length >= 5 && !isSelected;
 
-                      return (
-                        <Chip
-                          key={skillObj.id}
-                          label={
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0.5,
-                              }}
-                            >
-                              {skillName}
-                              {isSelected && (
-                                <CheckIcon sx={{ fontSize: 14, ml: 0.5 }} />
-                              )}
-                            </Box>
-                          }
-                          onClick={() => {
-                            console.debug(
-                              "grid chip click",
-                              skillName,
-                              "isSelected:",
-                              isSelected
-                            );
-                            isSelected
-                              ? removeSkill(skillName)
-                              : addSkill(skillName);
-                          }}
-                          disabled={isDisabled}
-                          variant={isSelected ? "filled" : "outlined"}
-                          color={isSelected ? "primary" : "default"}
+                  return (
+                    <Chip
+                      key={skillObj.id}
+                      label={
+                        <Box
                           sx={{
-                            backgroundColor: isSelected
-                              ? "#0A6802"
-                              : "transparent",
-                            color: isSelected ? "white" : "text.primary",
-                            borderColor: isSelected ? "#0A6802" : "grey.300",
-                            "&:hover": {
-                              backgroundColor: isSelected
-                                ? "#0A6802"
-                                : "grey.50",
-                              borderColor: isSelected ? "#0A6802" : "#0A6802",
-                            },
-                            "&:disabled": {
-                              backgroundColor: "grey.100",
-                              color: "grey.400",
-                              cursor: "not-allowed",
-                            },
-                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
                           }}
-                        />
-                      );
-                    })
-                  : []}
+                        >
+                          {skillName}
+                          {isSelected && (
+                            <CheckIcon sx={{ fontSize: 14, ml: 0.5 }} />
+                          )}
+                        </Box>
+                      }
+                      onClick={() =>
+                        isSelected ? removeSkill(skillName) : addSkill(skillName)
+                      }
+                      disabled={isDisabled}
+                      variant={isSelected ? "filled" : "outlined"}
+                      color={isSelected ? "primary" : "default"}
+                      sx={{
+                        backgroundColor: isSelected ? "#0A6802" : "transparent",
+                        color: isSelected ? "white" : "text.primary",
+                        borderColor: isSelected ? "#0A6802" : "grey.300",
+                        "&:hover": {
+                          backgroundColor: isSelected ? "#0A6802" : "grey.50",
+                          borderColor: isSelected ? "#0A6802" : "#0A6802",
+                        },
+                        "&:disabled": {
+                          backgroundColor: "grey.100",
+                          color: "grey.400",
+                          cursor: "not-allowed",
+                        },
+                        cursor: "pointer",
+                      }}
+                    />
+                  );
+                }) : []}
               </Box>
             </Paper>
           </Box>
