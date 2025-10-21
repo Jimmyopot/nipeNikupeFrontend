@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllCountiesAction, getAllUsersAction, getSkillsGroupedByCategoryAction, updateProfileAction } from "./CommonActions";
+import { getAllCountiesAction, getAllUsersAction, getSkillsGroupedByCategoryAction, searchUsersBySkillAndCountyAction, updateProfileAction } from "./CommonActions";
 
 const initialState = {
   getAllUsers: false,
@@ -13,6 +13,9 @@ const initialState = {
 
   getSkillsGroupedByCategory: false,
   getSkillsGroupedByCategoryResp: null,
+
+  searchUsersBySkillAndCounty: false,
+  searchUsersBySkillAndCountyResp: null,
 };
 
 const commonSlice = createSlice({
@@ -74,6 +77,19 @@ const commonSlice = createSlice({
       .addCase(getSkillsGroupedByCategoryAction.rejected, (state, action) => {
         state.getSkillsGroupedByCategory = false;
         state.getSkillsGroupedByCategoryResp = action.payload;
+      })
+
+      .addCase(searchUsersBySkillAndCountyAction.pending, (state) => {
+        state.searchUsersBySkillAndCounty = true;
+        state.searchUsersBySkillAndCountyResp = null;
+      })
+      .addCase(searchUsersBySkillAndCountyAction.fulfilled, (state, action) => {
+        state.searchUsersBySkillAndCounty = false;
+        state.searchUsersBySkillAndCountyResp = action.payload;
+      })
+      .addCase(searchUsersBySkillAndCountyAction.rejected, (state, action) => {
+        state.searchUsersBySkillAndCounty = false;
+        state.searchUsersBySkillAndCountyResp = action.payload;
       });
   },
 });

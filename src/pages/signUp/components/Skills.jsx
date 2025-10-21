@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { getSkillsGroupedByCategoryAction } from "../../../common/state/CommonActions";
+import { CATEGORY_ICONS } from "../../../common/CategoryIcons";
 
 const Skills = (props) => {
   const {
@@ -43,37 +44,37 @@ const Skills = (props) => {
     (state) => state.CommonReducer
   );
 
-  console.log("Skills Data44444444444:", getSkillsGroupedByCategoryResp);
+  // console.log("Skills Data44444444444:", getSkillsGroupedByCategoryResp);
 
   // Category icons mapping
-  const CATEGORY_ICONS = {
-    AfricanMarket: "🌍",
-    ArtsCrafts: "🎨",
-    BusinessEntrepreneurship: "💼",
-    Certifications: "📜",
-    CreativeArtistic: "🎭",
-    DigitalOnline: "💻",
-    EducationTeaching: "📚",
-    EmergingTechnology: "🚀",
-    Engineering: "⚙️",
-    EnvironmentalSustainability: "🌱",
-    HealthWellness: "🏥",
-    HomePractical: "🏠",
-    LanguageCommunication: "💬",
-    LegalRegulatory: "⚖️",
-    LifestyleLeisure: "🎯",
-    ManagementLeadership: "👔",
-    MarketingBranding: "📈",
-    MiscellaneousUnique: "🔧",
-    "MusicPerforming Arts": "🎵",
-    PersonalDevelopment: "🌟",
-    ProfessionalBusiness: "💼",
-    "SalesCustomer Service": "🛒",
-    ScienceResearch: "🔬",
-    SportsOutdoor: "⚽",
-    TechnicalIT: "💻",
-    WritingContent: "✍️",
-  };
+  // const CATEGORY_ICONS = {
+  //   AfricanMarket: "🌍",
+  //   ArtsCrafts: "🎨",
+  //   BusinessEntrepreneurship: "💼",
+  //   Certifications: "📜",
+  //   CreativeArtistic: "🎭",
+  //   DigitalOnline: "💻",
+  //   EducationTeaching: "📚",
+  //   EmergingTechnology: "🚀",
+  //   Engineering: "⚙️",
+  //   EnvironmentalSustainability: "🌱",
+  //   HealthWellness: "🏥",
+  //   HomePractical: "🏠",
+  //   LanguageCommunication: "💬",
+  //   LegalRegulatory: "⚖️",
+  //   LifestyleLeisure: "🎯",
+  //   ManagementLeadership: "👔",
+  //   MarketingBranding: "📈",
+  //   MiscellaneousUnique: "🔧",
+  //   "MusicPerforming Arts": "🎵",
+  //   PersonalDevelopment: "🌟",
+  //   ProfessionalBusiness: "💼",
+  //   "SalesCustomer Service": "🛒",
+  //   ScienceResearch: "🔬",
+  //   SportsOutdoor: "⚽",
+  //   TechnicalIT: "💻",
+  //   WritingContent: "✍️",
+  // };
 
   // Transform API data to match component structure
   const SKILLS_DATABASE = getSkillsGroupedByCategoryResp || {};

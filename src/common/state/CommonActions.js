@@ -63,3 +63,20 @@ export const getSkillsGroupedByCategoryAction = createAsyncThunk(
     }
   }
 );
+
+export const searchUsersBySkillAndCountyAction = createAsyncThunk(
+  "common/searchUsersBySkillAndCounty",
+  async ({ skill, county }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${config.apiUrl}Utils/SearchUsersBySkillAndCounty`,
+        {
+          params: { skill, county },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to search users");
+    }
+  }
+);

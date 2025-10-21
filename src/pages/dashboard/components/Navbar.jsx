@@ -67,14 +67,27 @@ const Navbar = () => {
   };
 
   // ✅ Handle logout
-  const handleLogout = async () => {
+  const handleLogout = () => {
     handleDropdownClose(); // close the dropdown immediately
-    try {
-      await dispatch(logoutAction()).unwrap(); // trigger Redux logout
-      navigate("/login"); // redirect to login page
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
+    console.log("Logout initiated..."); // Debug log
+    
+    // Clear localStorage immediately
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.clear(); // Clear all localStorage as extra precaution
+    
+    console.log("LocalStorage cleared"); // Debug log
+    
+    // Dispatch logout action (don't wait for it)
+    dispatch(logoutAction()).then(() => {
+      console.log("Redux logout completed");
+    }).catch((err) => {
+      console.error("Redux logout error:", err);
+    });
+    
+    // Force immediate redirect
+    console.log("Forcing redirect to /login");
+    window.location.href = '/login';
   };
 
   return (
