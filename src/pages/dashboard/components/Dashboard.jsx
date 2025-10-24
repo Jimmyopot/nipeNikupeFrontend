@@ -248,12 +248,12 @@ export default function Dashboard() {
       // Perform API search with the selected skill
       const county = selectedCounty === "All Counties" ? "" : selectedCounty;
 
-      dispatch(
-        searchUsersBySkillAndCountyAction({
-          skill: skillName,
-          county,
-        })
-      );
+      // dispatch(
+      //   searchUsersBySkillAndCountyAction({
+      //     skill: skillName,
+      //     county,
+      //   })
+      // );
 
       // Blur the input after selection
       if (searchInputRef.current) {
@@ -625,12 +625,12 @@ export default function Dashboard() {
                               selectedCounty === "All Counties"
                                 ? ""
                                 : selectedCounty;
-                            dispatch(
-                              searchUsersBySkillAndCountyAction({
-                                skill,
-                                county,
-                              })
-                            );
+                            // dispatch(
+                            //   searchUsersBySkillAndCountyAction({
+                            //     skill,
+                            //     county,
+                            //   })
+                            // );
                           }}
                           sx={{
                             transition: "all 0.2s",
