@@ -251,6 +251,7 @@ import {
   Box,
   TextField,
   CircularProgress,
+  Autocomplete,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -331,45 +332,66 @@ const Location = ({ currentStep, formData, setFormData, errors, setErrors }) => 
               fullWidth
               sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
               error={!!errors.cityOrTown}
-              disabled={getAllCounties}
             >
-              <InputLabel>Select your county</InputLabel>
-              <Select
-                value={formData?.cityOrTown || ""}
-                label="Select your county"
-                onChange={(e) => {
-                  setFormData({ ...formData, cityOrTown: e.target.value });
-                  if (errors.cityOrTown && e.target.value) {
+              <Autocomplete
+                value={formData?.cityOrTown || null}
+                onChange={(event, newValue) => {
+                  setFormData({ ...formData, cityOrTown: newValue || "" });
+                  if (errors.cityOrTown && newValue) {
                     setErrors({ ...errors, cityOrTown: "" });
                   }
                 }}
-                displayEmpty
-                renderValue={(selected) =>
-                  selected ? selected : ""
-                }
-              >
-                <MenuItem value="" disabled>
-                  Select your Kenyan county
-                </MenuItem>
+                options={getAllCountiesResp?.map((county) => county.name) || []}
+                getOptionLabel={(option) => option}
+                filterOptions={(options, { inputValue }) => {
+                  if (!inputValue) return options;
 
-                {getAllCounties ? (
-                  <MenuItem disabled>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <CircularProgress size={20} />
-                      Loading counties...
-                    </Box>
-                  </MenuItem>
-                ) : (
-                  getAllCountiesResp?.map((county) => (
-                    <MenuItem key={county.countyId} value={county.name}>
-                      {county.name}
-                    </MenuItem>
-                  ))
+                  const searchTerm = inputValue.toLowerCase();
+                  return options.filter((option) =>
+                    option.toLowerCase().includes(searchTerm)
+                  );
+                }}
+                disabled={getAllCounties}
+                loading={getAllCounties}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select your county"
+                    placeholder="Search county... (e.g., Nakuru)"
+                    error={!!errors.cityOrTown}
+                    helperText={errors.cityOrTown}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {getAllCounties ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: "#E5F4E4",
+                      },
+                    }}
+                  />
                 )}
-              </Select>
-              {errors.cityOrTown && (
-                <FormHelperText>{errors.cityOrTown}</FormHelperText>
-              )}
+                renderOption={(props, option) => (
+                  <li {...props} key={option}>
+                    {option}
+                  </li>
+                )}
+                noOptionsText="No counties found"
+                isOptionEqualToValue={(option, value) => option === value}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "#E5F4E4",
+                    borderRadius: 2,
+                  },
+                }}
+              />
             </FormControl>
           )}
 

@@ -19,10 +19,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAction, checkAuthAction } from "../state/LoginActions";
 import { clearLoginError } from "../state/LoginSlice";
+import { useSnackbar } from "../../../common/snackbar/SnackbarContext";
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   // Local state
   const [showPassword, setShowPassword] = useState(false);
@@ -114,6 +116,7 @@ export default function Login() {
         onSuccess: (response) => {
           // success - redirect
           navigate("/dashboard");
+          showSnackbar("Login successful!", "success");
         },
         onFailure: (err) => {
           // we don't need to handle here because reducer sets loginError
@@ -126,6 +129,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated) {
+      showSnackbar("Login successful!", "success");
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);

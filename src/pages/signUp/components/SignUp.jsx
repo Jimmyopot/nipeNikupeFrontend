@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signupAction, checkUserUniqueAction } from "../state/SignUpActions";
 import { clearUniquenessCheck } from "../state/SignUpSlice";
 import { Link, useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../../common/snackbar/SnackbarContext";
 
 export default function NipeNikupeRegistration() {
   const dispatch = useDispatch();
@@ -27,8 +28,8 @@ export default function NipeNikupeRegistration() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [customSkill, setCustomSkill] = useState("");
-  // const [availability, setAvailability] = useState({});
   const [errors, setErrors] = useState({});
+  const { showSnackbar } = useSnackbar();
 
   const {
     signup,
@@ -283,8 +284,10 @@ export default function NipeNikupeRegistration() {
         formData: payload,
         onSuccess: (resp) => {
           console.log("✅ Signup success:", resp);
-          navigate("/login");
-          alert("Registration successful!");
+          showSnackbar("Registration successful! Please log in waiting for you...", "success");
+          setTimeout(() => {
+            navigate("/login");
+          }, 500);
         },
         onFailure: (errorMessage) => {
           console.error("❌ Signup failed:", errorMessage);
@@ -316,7 +319,7 @@ export default function NipeNikupeRegistration() {
               variant="h3"
               sx={{ fontWeight: "bold", mb: 1, color: "#0A6802" }}
             >
-              Welcome to Nipe Nikupe
+              Welcome to NipeNikupe
             </Typography>
             <Typography variant="h6" sx={{ color: "grey.600" }}>
               Join our community of skill exchangers and start bartering your
@@ -586,7 +589,12 @@ export default function NipeNikupeRegistration() {
                     type="button" // not submit anymore
                     onClick={handleSubmit} // ✅ directly call your submit logic
                     variant="contained"
-                    disabled={signup}
+                    // disabled={signup}
+                    disabled={
+                      signup || // still disable if loading
+                      !formData.availableDate || // disable if date not selected
+                      !formData.availableTime // disable if time not selected
+                    }
                     sx={{
                       borderRadius: 2,
                       bgcolor: "#0A6802",

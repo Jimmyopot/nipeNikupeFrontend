@@ -8,14 +8,17 @@ import { theme } from './theme.js';
 import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { store } from './utils/store.js';
+import { SnackbarProvider } from './common/snackbar/SnackbarContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
+        <SnackbarProvider>
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
+        </SnackbarProvider>
       </Provider>
     </BrowserRouter>
   </StrictMode>,

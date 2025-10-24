@@ -122,7 +122,6 @@ export const logoutAction = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       // Clear token and user data from localStorage
-      localStorage.removeItem('authToken');
       localStorage.removeItem('user');
       
       return { message: "Logged out successfully" };

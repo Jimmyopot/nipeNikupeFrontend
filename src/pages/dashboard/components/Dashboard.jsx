@@ -19,6 +19,7 @@ import {
   Fade,
   IconButton,
   CircularProgress,
+  Autocomplete,
 } from "@mui/material";
 import {
   Search,
@@ -117,6 +118,7 @@ const mockUsers = [
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCounty, setSelectedCounty] = useState("All Counties");
+  const [countySearch, setCountySearch] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(mockUsers);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -506,44 +508,64 @@ export default function Dashboard() {
                       flexDirection: { xs: "column", sm: "row" },
                     }}
                   >
-                    <FormControl sx={{ flex: 1, minWidth: 200 }}>
-                      <InputLabel>County</InputLabel>
-                      <Select
-                        value={selectedCounty}
-                        onChange={(e) => setSelectedCounty(e.target.value)}
-                        label="County"
-                        startAdornment={
-                          <InputAdornment position="start">
-                            <LocationOn color="primary" />
-                          </InputAdornment>
-                        }
-                        sx={{ height: 56 }}
-                        disabled={getAllCounties}
-                      >
-                        <MenuItem value="All Counties">All Counties</MenuItem>
+                    <Autocomplete
+                      value={selectedCounty}
+                      onChange={(event, newValue) => {
+                        setSelectedCounty(newValue || "All Counties");
+                      }}
+                      options={[
+                        "All Counties",
+                        ...(getAllCountiesResp?.map((county) => county.name) ||
+                          []),
+                      ]}
+                      getOptionLabel={(option) => option}
+                      filterOptions={(options, { inputValue }) => {
+                        if (!inputValue) return options;
 
-                        {getAllCounties ? (
-                          <MenuItem disabled>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              <CircularProgress size={20} />
-                              Loading counties...
-                            </Box>
-                          </MenuItem>
-                        ) : (
-                          getAllCountiesResp?.map((county) => (
-                            <MenuItem key={county.countyId} value={county.name}>
-                              {county.name}
-                            </MenuItem>
-                          ))
-                        )}
-                      </Select>
-                    </FormControl>
+                        const searchTerm = inputValue.toLowerCase();
+                        return options.filter((option) =>
+                          option.toLowerCase().includes(searchTerm)
+                        );
+                      }}
+                      disabled={getAllCounties}
+                      loading={getAllCounties}
+                      sx={{ flex: 1, minWidth: 200 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="County"
+                          placeholder="Search county..."
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <LocationOn color="primary" />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                            endAdornment: (
+                              <>
+                                {getAllCounties ? (
+                                  <CircularProgress color="inherit" size={20} />
+                                ) : null}
+                                {params.InputProps.endAdornment}
+                              </>
+                            ),
+                            sx: { height: 56 },
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} key={option}>
+                          {option}
+                        </li>
+                      )}
+                      noOptionsText="No counties found"
+                      isOptionEqualToValue={(option, value) => option === value}
+                    />
+
                     <Button
                       disabled={!searchQuery.trim()}
                       onClick={handleSearch}

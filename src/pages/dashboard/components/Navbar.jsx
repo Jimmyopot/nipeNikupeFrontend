@@ -29,11 +29,13 @@ import {
   DarkMode as DarkModeIcon,
 } from "@mui/icons-material";
 import { logoutAction } from "../../login/state/LoginActions"; 
+import { useSnackbar } from "../../../common/snackbar/SnackbarContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, logoutLoading } = useSelector((state) => state.LoginReducer);
+  const { showSnackbar } = useSnackbar();
 
   // State for dropdown menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -69,25 +71,24 @@ const Navbar = () => {
   // ✅ Handle logout
   const handleLogout = () => {
     handleDropdownClose(); // close the dropdown immediately
-    console.log("Logout initiated..."); // Debug log
     
     // Clear localStorage immediately
-    localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     localStorage.clear(); // Clear all localStorage as extra precaution
-    
-    console.log("LocalStorage cleared"); // Debug log
+
+    showSnackbar("Logout successful!", "success");
     
     // Dispatch logout action (don't wait for it)
     dispatch(logoutAction()).then(() => {
-      console.log("Redux logout completed");
+      showSnackbar("Logout successful", "success");
     }).catch((err) => {
       console.error("Redux logout error:", err);
+      showSnackbar("Error during logout", "error");
     });
-    
-    // Force immediate redirect
-    console.log("Forcing redirect to /login");
-    window.location.href = '/login';
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 500);
   };
 
   return (
