@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import IndexPage from './pages/landingPage/IndexPage';
 import SignUpPage from './pages/signUp/SignUpPage';
 import LoginPage from './pages/login/LoginPage';
+import AdminPage from './pages/admin/AdminPage.jsx';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import NotFoundPage from './pages/notFound/NotFoundPage';
 import NoInternetPage from './pages/noInternet/NoInternetPage';
@@ -39,6 +40,12 @@ function App() {
           path="/login"
           element={
               <LoginPage />
+          }
+        />
+        <Route
+          path="/adminsOnly"
+          element={
+              <AdminPage />
           }
         />
         <Route

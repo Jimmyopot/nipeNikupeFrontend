@@ -20,6 +20,7 @@ import { signupAction, checkUserUniqueAction } from "../state/SignUpActions";
 import { clearUniquenessCheck } from "../state/SignUpSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { useSnackbar } from "../../../common/snackbar/SnackbarContext";
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 
 export default function NipeNikupeRegistration() {
   const dispatch = useDispatch();
@@ -621,32 +622,33 @@ export default function NipeNikupeRegistration() {
               {currentStep === 4 &&
                 "Final step! Set your availability and you're done! 🎉"}
             </Typography>
-            <Typography
-              variant="overline"
-              sx={{
-                color: "grey.600",
-                display: "flex",
-                justifyContent: "center",
-                gap: 0.5,
-                textTransform: "none",
-              }}
-            >
-              Already have an account?
-              <Link to="/Login" style={{ textDecoration: "none" }}>
+
+            <Box sx={{ textAlign: "center", fontSize: 15 }}>
+              <Typography
+                component="span"
+                sx={{ color: "text.secondary", fontSize: 14 }}
+              >
+                Already have an account?{" "}
+              </Typography>
+              <Link to="/login" style={{ textDecoration: "none" }}>
                 <Typography
-                  variant="overline"
+                  component="span"
                   sx={{
                     textTransform: "none",
                     textDecoration: "underline",
                     color: "secondary.main",
                     cursor: "pointer",
+                    fontSize: 14,
                     fontWeight: 600,
+                    display: "inline-flex",
+                    alignItems: "center",
                   }}
                 >
                   Login
+                  <ArrowRightAltIcon sx={{ fontSize: 18, ml: 0.5 }} />
                 </Typography>
               </Link>
-            </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>

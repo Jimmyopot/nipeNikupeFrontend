@@ -62,28 +62,38 @@ export const loginAction = createAsyncThunk(
   "account/login",
   async (loginData, { rejectWithValue }) => {
     try {
+      // @ts-ignore
+      const email = loginData?.email || '';
+      // @ts-ignore
+      const password = loginData?.password || '';
+      
       const response = await axios.post(
         `${config.apiUrl}account/login`, {
-          email: loginData.email,
-          password: loginData.password
+          email,
+          password
         });
 
       const { token, user } = response.data;
 
+      // Store user object with token inside for authHeader compatibility
+      const userWithToken = { ...user, token };
+      
       localStorage.setItem('authToken', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(userWithToken));
 
       return {
         token,
-        user,
+        user: userWithToken,
         email: user.email,
         isAuthenticated: true
       }
     } catch (error) {
-      const message =
-        (error.response && error.response.data) ||
-        error.message ||
-        error.toString();
+      let message = "Login failed. Please try again.";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      }
       return rejectWithValue(message);
     }
   }
@@ -94,24 +104,37 @@ export const checkAuthAction = createAsyncThunk(
   "account/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
+      const userString = localStorage.getItem('user');
       const token = localStorage.getItem('authToken');
-      const user = localStorage.getItem('user');
       
-      if (!token || !user) {
+      if (!userString || !token) {
         throw new Error('No authentication data found');
       }
       
-      // Optional: Verify token with backend
-      // You can add an API call here to validate the token
+      const user = JSON.parse(userString);
+      
+      // Ensure user object has token for authHeader compatibility
+      if (!user.token) {
+        user.token = token;
+        localStorage.setItem('user', JSON.stringify(user));
+      }
       
       return {
-        token,
-        user: JSON.parse(user),
-        email: JSON.parse(user).email,
+        user,
+        token: user.token,
+        email: user.email,
         isAuthenticated: true
       };
     } catch (error) {
-      return rejectWithValue(error.message || 'Authentication check failed');
+      // Clear any corrupted auth data
+      localStorage.removeItem('user');
+      localStorage.removeItem('authToken');
+      
+      let message = 'Authentication check failed';
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -121,8 +144,9 @@ export const logoutAction = createAsyncThunk(
   "account/logout",
   async (_, { rejectWithValue }) => {
     try {
-      // Clear token and user data from localStorage
+      // Clear both token and user data from localStorage
       localStorage.removeItem('user');
+      localStorage.removeItem('authToken');
       
       return { message: "Logged out successfully" };
     } catch (error) {

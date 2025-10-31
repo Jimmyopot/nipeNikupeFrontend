@@ -44,18 +44,6 @@ import {
 } from "../../../common/state/CommonActions";
 import { CATEGORY_ICONS } from "../../../common/CategoryIcons";
 
-// Mock user data (in a real app, this would come from authentication/database)
-const currentUser = {
-  fullName: "Jane Doe",
-  email: "jane.doe@example.com",
-  phoneNumber: "+254 712 345 678",
-  county: "Nairobi",
-  locality: "Westlands",
-  skillsOffered: ["Web Development", "Graphic Design", "Photography"],
-  skillsNeeded: ["Plumbing", "Fitness Training"],
-  profilePicture: "/professional-woman-smiling.png",
-};
-
 // Mock user matches data
 const mockUsers = [
   {

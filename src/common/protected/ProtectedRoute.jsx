@@ -1,31 +1,33 @@
-import axios from "axios";
-import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { config } from "../../utils/config";
-import { authHeader } from "./authHeader";
+import { useSelector } from "react-redux";
+import { CircularProgress, Box } from "@mui/material";
 
 export function ProtectedRoute({ children }) {
-  const [authCheck, setAuthCheck] = useState(true);
+  // @ts-ignore
+  const loginState = useSelector((state) => state?.LoginReducer || {});
+  const { isAuthenticated = false, checkingAuth = false } = loginState;
 
-  const checkAuth = () => {
-    return axios.get(config.apiUrl + "account/CheckAuthentication", {
-      headers: {
-        ...authHeader(),
-        "Content-Type": "application/json",
-      },
-    });
-  };
-  checkAuth()
-    .then((resp) => {
-      setAuthCheck(resp.data);
-    })
-    .catch((error) => {
-      setAuthCheck(false);
-    });
+  // Show loading spinner while checking authentication
+  if (checkingAuth) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  return authCheck && localStorage.getItem("user") ? (
-    <>{children}</>
-  ) : (
-    <Navigate to="/login" />
-  );
+  // If not authenticated, redirect to login
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If authenticated, render the protected content
+  return <>{children}</>;
 }

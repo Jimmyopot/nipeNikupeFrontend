@@ -34,11 +34,13 @@ export default function Login() {
   const [formErrors, setFormErrors] = useState({});
 
   // Redux state - ensure this selector matches your store key
+  // @ts-ignore
   const { isAuthenticated, loading, error, checkingAuth } =
-    useSelector((state) => state.LoginReducer);
+    useSelector((state) => state.LoginReducer || {});
 
   // check auth on mount
   useEffect(() => {
+    // @ts-ignore
     dispatch(checkAuthAction());
   }, [dispatch]);
 
@@ -108,31 +110,38 @@ export default function Login() {
 
     if (!validateForm()) return;
 
-    // ADDED DATABASE ON HOME PC
+    // Dispatch login action - navigation handled by useEffect when isAuthenticated changes
+    // @ts-ignore
     dispatch(
       loginAction({
         email: email.trim(),
         password,
-        onSuccess: (response) => {
-          // success - redirect
-          navigate("/dashboard");
-          showSnackbar("Login successful!", "success");
-        },
-        onFailure: (err) => {
-          // we don't need to handle here because reducer sets loginError
-          // but good to inspect in dev console
-          // console.log("login failed callback", err);
-        },
       })
     );
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !checkingAuth) {
       showSnackbar("Login successful!", "success");
       navigate("/dashboard");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, checkingAuth, navigate, showSnackbar]);
+
+  // Show loading spinner while checking authentication
+  if (checkingAuth) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -355,29 +364,14 @@ export default function Login() {
                     cursor: "pointer",
                     fontSize: 14,
                     fontWeight: 600,
-                    // alignItems: "center",
+                    display: "inline-flex",
+                    alignItems: "center",
                   }}
                 >
                   Create Account
                   <ArrowRightAltIcon sx={{ fontSize: 18, ml: 0.5 }} />
                 </Typography>
               </Link>
-              {/* <Link to="/signUp">
-                <a
-                  style={{
-                    color: "secondary.main",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 4,
-                    fontSize: 15,
-                  }}
-                >
-                  Create Account
-                  <ArrowRightAltIcon sx={{ fontSize: 18, ml: 0.5 }} />
-                </a>
-              </Link> */}
             </Box>
           </CardActions>
         </Card>
