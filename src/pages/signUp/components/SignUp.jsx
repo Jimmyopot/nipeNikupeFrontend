@@ -30,6 +30,8 @@ export default function NipeNikupeRegistration() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [customSkill, setCustomSkill] = useState("");
   const [errors, setErrors] = useState({});
+  const [agreedToTC, setAgreedToTC] = useState(false);
+  const [showTCModal, setShowTCModal] = useState(false);
   const { showSnackbar } = useSnackbar();
 
   const {
@@ -80,6 +82,9 @@ export default function NipeNikupeRegistration() {
       }
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "*Passwords do not match";
+      }
+      if (!agreedToTC) {
+        newErrors.agreedToTC = "*You must agree to the Terms and Conditions";
       }
     }
 
@@ -442,6 +447,9 @@ export default function NipeNikupeRegistration() {
                 strengthLabels={strengthLabels}
                 errors={errors}
                 setErrors={setErrors}
+                agreedToTC={agreedToTC}
+                setAgreedToTC={setAgreedToTC}
+                setShowTCModal={setShowTCModal}
               />
 
               {/* Step 2: Location */}
@@ -573,7 +581,7 @@ export default function NipeNikupeRegistration() {
                     type="button"
                     variant="contained"
                     onClick={handleNext}
-                    disabled={checkingUniqueness}
+                    disabled={checkingUniqueness || (currentStep === 1 && !agreedToTC)}
                     sx={{
                       borderRadius: 2,
                       bgcolor: "#0A6802",
