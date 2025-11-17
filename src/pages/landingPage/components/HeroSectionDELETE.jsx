@@ -155,7 +155,7 @@ export function HeroSection() {
               }}
               href="#how-it-works"
             >
-              How It Works
+              How It Works  
             </Button>
           </Box>
 

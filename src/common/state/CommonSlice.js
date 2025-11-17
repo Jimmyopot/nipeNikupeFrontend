@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllCountiesAction, getAllUsersAction, getSkillsGroupedByCategoryAction, searchUsersBySkillAndCountyAction, updateProfileAction } from "./CommonActions";
+import { getAllCountiesAction, getAllUsersAction, getSkillsGroupedByCategoryAction, getSuggestedMatchesAction, searchUsersBySkillAndCountyAction, updateProfileAction } from "./CommonActions";
 
 const initialState = {
   getAllUsers: false,
@@ -16,6 +16,9 @@ const initialState = {
 
   searchUsersBySkillAndCounty: false,
   searchUsersBySkillAndCountyResp: null,
+
+  getSuggestedMatches: false,
+  getSuggestedMatchesResp: null,
 };
 
 const commonSlice = createSlice({
@@ -90,6 +93,19 @@ const commonSlice = createSlice({
       .addCase(searchUsersBySkillAndCountyAction.rejected, (state, action) => {
         state.searchUsersBySkillAndCounty = false;
         state.searchUsersBySkillAndCountyResp = action.payload;
+      })
+
+      .addCase(getSuggestedMatchesAction.pending, (state) => {
+        state.getSuggestedMatches = true;
+        state.getSuggestedMatchesResp = null;
+      })
+      .addCase(getSuggestedMatchesAction.fulfilled, (state, action) => {
+        state.getSuggestedMatches = false;
+        state.getSuggestedMatchesResp = action.payload;
+      })
+      .addCase(getSuggestedMatchesAction.rejected, (state, action) => {
+        state.getSuggestedMatches = false;
+        state.getSuggestedMatchesResp = action.payload;
       });
   },
 });

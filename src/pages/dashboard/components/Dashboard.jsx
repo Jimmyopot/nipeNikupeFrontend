@@ -6,11 +6,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Chip,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   InputAdornment,
   Container,
   Divider,
@@ -117,7 +112,7 @@ export default function Dashboard() {
   const suggestionsPaperRef = useRef(null);
   const searchResultsRef = useRef(null);
 
-  const { user } = useSelector((state) => state.LoginReducer);
+  const { user } = useSelector((state) => state.AuthReducer);
 
   const {
     getSkillsGroupedByCategoryResp,

@@ -6,10 +6,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   InputAdornment,
   Container,
   Divider,
@@ -18,6 +14,7 @@ import {
   Fade,
   IconButton,
   CircularProgress,
+  Autocomplete,
 } from "@mui/material";
 import {
   Search,
@@ -41,18 +38,6 @@ import {
   getAllUsersAction,
 } from "../../../common/state/CommonActions";
 import { CATEGORY_ICONS } from "../../../common/CategoryIcons";
-
-// Mock user data (in a real app, this would come from authentication/database)
-const currentUser = {
-  fullName: "Jane Doe",
-  email: "jane.doe@example.com",
-  phoneNumber: "+254 712 345 678",
-  county: "Nairobi",
-  locality: "Westlands",
-  skillsOffered: ["Web Development", "Graphic Design", "Photography"],
-  skillsNeeded: ["Plumbing", "Fitness Training"],
-  profilePicture: "/professional-woman-smiling.png",
-};
 
 // Mock user matches data
 const mockUsers = [
@@ -116,6 +101,7 @@ const mockUsers = [
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCounty, setSelectedCounty] = useState("All Counties");
+  const [countySearch, setCountySearch] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(mockUsers);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -124,8 +110,9 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const searchInputRef = useRef(null);
   const suggestionsPaperRef = useRef(null);
+  const searchResultsRef = useRef(null);
 
-  const { user } = useSelector((state) => state.LoginReducer);
+  const { user } = useSelector((state) => state.AuthReducer);
 
   const {
     getSkillsGroupedByCategoryResp,
@@ -164,6 +151,17 @@ export default function Dashboard() {
         county,
       })
     );
+
+    // Smooth scroll to search results section after a short delay
+    setTimeout(() => {
+      if (searchResultsRef.current) {
+        searchResultsRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 300); // Small delay to ensure the search state updates
   };
 
   // Filter skills based on search for autocomplete
@@ -193,6 +191,13 @@ export default function Dashboard() {
       setFilteredUsers(searchUsersBySkillAndCountyResp);
     }
   }, [searchUsersBySkillAndCountyResp]);
+
+  // Set initial users when getAllUsers response is available
+  useEffect(() => {
+    if (getAllUsersResp && getAllUsersResp.length > 0) {
+      setFilteredUsers(getAllUsersResp);
+    }
+  }, [getAllUsersResp]);
 
   // Handle clicks outside of search area to close suggestions
   useEffect(() => {
@@ -226,12 +231,12 @@ export default function Dashboard() {
       // Perform API search with the selected skill
       const county = selectedCounty === "All Counties" ? "" : selectedCounty;
 
-      dispatch(
-        searchUsersBySkillAndCountyAction({
-          skill: skillName,
-          county,
-        })
-      );
+      // dispatch(
+      //   searchUsersBySkillAndCountyAction({
+      //     skill: skillName,
+      //     county,
+      //   })
+      // );
 
       // Blur the input after selection
       if (searchInputRef.current) {
@@ -249,13 +254,13 @@ export default function Dashboard() {
     setShowSuggestions(false);
     setSelectedCounty("All Counties");
 
-    // Reset search via API to show all users
-    dispatch(
-      searchUsersBySkillAndCountyAction({
-        skill: "",
-        county: "",
-      })
-    );
+    // Reset to show all users without making API call with empty params
+    if (getAllUsersResp && getAllUsersResp.length > 0) {
+      setFilteredUsers(getAllUsersResp);
+    } else {
+      // Fallback to mock users if no API data available
+      setFilteredUsers(mockUsers);
+    }
 
     if (searchInputRef.current) {
       const input = searchInputRef.current.querySelector("input");
@@ -486,45 +491,66 @@ export default function Dashboard() {
                       flexDirection: { xs: "column", sm: "row" },
                     }}
                   >
-                    <FormControl sx={{ flex: 1, minWidth: 200 }}>
-                      <InputLabel>County</InputLabel>
-                      <Select
-                        value={selectedCounty}
-                        onChange={(e) => setSelectedCounty(e.target.value)}
-                        label="County"
-                        startAdornment={
-                          <InputAdornment position="start">
-                            <LocationOn color="primary" />
-                          </InputAdornment>
-                        }
-                        sx={{ height: 56 }}
-                        disabled={getAllCounties}
-                      >
-                        <MenuItem value="All Counties">All Counties</MenuItem>
+                    <Autocomplete
+                      value={selectedCounty}
+                      onChange={(event, newValue) => {
+                        setSelectedCounty(newValue || "All Counties");
+                      }}
+                      options={[
+                        "All Counties",
+                        ...(getAllCountiesResp?.map((county) => county.name) ||
+                          []),
+                      ]}
+                      getOptionLabel={(option) => option}
+                      filterOptions={(options, { inputValue }) => {
+                        if (!inputValue) return options;
 
-                        {getAllCounties ? (
-                          <MenuItem disabled>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              <CircularProgress size={20} />
-                              Loading counties...
-                            </Box>
-                          </MenuItem>
-                        ) : (
-                          getAllCountiesResp?.map((county) => (
-                            <MenuItem key={county.countyId} value={county.name}>
-                              {county.name}
-                            </MenuItem>
-                          ))
-                        )}
-                      </Select>
-                    </FormControl>
+                        const searchTerm = inputValue.toLowerCase();
+                        return options.filter((option) =>
+                          option.toLowerCase().includes(searchTerm)
+                        );
+                      }}
+                      disabled={getAllCounties}
+                      loading={getAllCounties}
+                      sx={{ flex: 1, minWidth: 200 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="County"
+                          placeholder="Search county..."
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <LocationOn color="primary" />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                            endAdornment: (
+                              <>
+                                {getAllCounties ? (
+                                  <CircularProgress color="inherit" size={20} />
+                                ) : null}
+                                {params.InputProps.endAdornment}
+                              </>
+                            ),
+                            sx: { height: 56 },
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} key={option}>
+                          {option}
+                        </li>
+                      )}
+                      noOptionsText="No counties found"
+                      isOptionEqualToValue={(option, value) => option === value}
+                    />
+
                     <Button
+                      disabled={!searchQuery.trim()}
                       onClick={handleSearch}
                       variant="contained"
                       size="large"
@@ -536,7 +562,9 @@ export default function Dashboard() {
                         fontWeight: 600,
                         transition: "transform 0.2s",
                         "&:hover": {
-                          transform: "scale(1.05)",
+                          transform: searchQuery.trim()
+                            ? "scale(1.05)"
+                            : "none",
                         },
                       }}
                     >
@@ -580,12 +608,12 @@ export default function Dashboard() {
                               selectedCounty === "All Counties"
                                 ? ""
                                 : selectedCounty;
-                            dispatch(
-                              searchUsersBySkillAndCountyAction({
-                                skill,
-                                county,
-                              })
-                            );
+                            // dispatch(
+                            //   searchUsersBySkillAndCountyAction({
+                            //     skill,
+                            //     county,
+                            //   })
+                            // );
                           }}
                           sx={{
                             transition: "all 0.2s",
@@ -619,7 +647,7 @@ export default function Dashboard() {
             </Box>
 
             <Box sx={{ width: { xs: "100%", md: "65%" } }}>
-              <Box>
+              <Box ref={searchResultsRef}>
                 <Box
                   sx={{
                     display: "flex",
@@ -677,13 +705,12 @@ export default function Dashboard() {
                         onClick={() => {
                           setSearchQuery("");
                           setSelectedCounty("All Counties");
-                          // Reset search via API
-                          dispatch(
-                            searchUsersBySkillAndCountyAction({
-                              skill: "",
-                              county: "",
-                            })
-                          );
+                          // Reset to show all users without making API call with empty params
+                          if (getAllUsersResp && getAllUsersResp.length > 0) {
+                            setFilteredUsers(getAllUsersResp);
+                          } else {
+                            setFilteredUsers(mockUsers);
+                          }
                         }}
                       >
                         Clear Filters
@@ -692,13 +719,288 @@ export default function Dashboard() {
                   </Card>
                 ) : (
                   <Stack spacing={2}>
-                    {getAllUsers ? "loading..." : getAllUsersResp.map((match) => {
-                      return (
-                        <Box key={match.id}>
-                          <Typography variant="body1">{match.fullName}</Typography>
-                        </Box>
-                      )
-                    })}
+                    {filteredUsers.map((user) => (
+                      <Card
+                        key={user?.userId || user?.id}
+                        elevation={2}
+                        sx={{
+                          transition: "box-shadow 0.3s ease",
+                          "&:hover": {
+                            boxShadow: (theme) => theme.shadows[8],
+                          },
+                        }}
+                      >
+                        <CardContent sx={{ p: 3 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: { xs: "column", md: "row" },
+                              gap: 3,
+                            }}
+                          >
+                            {/* User Avatar & Info */}
+                            <Box sx={{ display: "flex", gap: 2, flex: 1 }}>
+                              <Box
+                                sx={{
+                                  width: 64,
+                                  height: 64,
+                                  borderRadius: "50%",
+                                  backgroundColor: "primary.main",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  fontSize: "1.5rem",
+                                  border: "2px solid",
+                                  borderColor: "primary.light",
+                                }}
+                              >
+                                {user?.fullName
+                                  ? user?.fullName
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .toUpperCase()
+                                  : "??"}
+                              </Box>
+                              <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography
+                                  variant="h6"
+                                  sx={{ fontWeight: 600, mb: 0.5 }}
+                                >
+                                  {user?.fullName}
+                                </Typography>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                    mb: 1,
+                                  }}
+                                >
+                                  <LocationOn
+                                    sx={{
+                                      fontSize: "0.875rem",
+                                      color: "text.secondary",
+                                    }}
+                                  />
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {user?.cityOrTown || user?.county},{" "}
+                                    {user?.country || "Kenya"}
+                                  </Typography>
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 2,
+                                    fontSize: "0.875rem",
+                                  }}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    📩 {user?.email || user?.contact}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+
+                            {/* Skills */}
+                            <Box sx={{ flex: 1 }}>
+                              <Stack spacing={2}>
+                                <Box>
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ mb: 1, display: "block" }}
+                                  >
+                                    Skills Offered
+                                  </Typography>
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexWrap: "wrap",
+                                      gap: 0.5,
+                                    }}
+                                  >
+                                    {(() => {
+                                      // ✅ Combine both user.skills and user.skill
+                                      let rawSkills =
+                                        user?.skills ?? user?.skill;
+
+                                      if (!rawSkills) {
+                                        return (
+                                          <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                          >
+                                            No skills listed
+                                          </Typography>
+                                        );
+                                      }
+
+                                      let skillsToDisplay = [];
+
+                                      // Handle if string (comma or semicolon separated)
+                                      if (typeof rawSkills === "string") {
+                                        skillsToDisplay = rawSkills
+                                          .split(
+                                            /[,;|]|(?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])/
+                                          )
+                                          .map((s) => s.trim())
+                                          .filter((s) => s.length > 0);
+                                      }
+                                      // Handle if array
+                                      else if (Array.isArray(rawSkills)) {
+                                        skillsToDisplay = rawSkills.filter(
+                                          (s) => s && s.length > 0
+                                        );
+                                      }
+                                      // Handle other cases
+                                      else {
+                                        skillsToDisplay = [
+                                          String(rawSkills),
+                                        ].filter((s) => s && s.length > 0);
+                                      }
+
+                                      return skillsToDisplay.map(
+                                        (skill, index) => (
+                                          <Box
+                                            key={index}
+                                            sx={{
+                                              backgroundColor: "primary.main2",
+                                              color: "primary.dark",
+                                              px: 1.5,
+                                              py: 0.5,
+                                              borderRadius: "12px",
+                                              fontSize: "0.7rem",
+                                              fontWeight: 500,
+                                            }}
+                                          >
+                                            {skill}
+                                          </Box>
+                                        )
+                                      );
+                                    })()}
+                                  </Box>
+                                </Box>
+
+                                {/* Optional: Skills Offered */}
+                                {user.skillsOffered && (
+                                  <Box>
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                      sx={{ mb: 1, display: "block" }}
+                                    >
+                                      All Skills Offered
+                                    </Typography>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 0.5,
+                                      }}
+                                    >
+                                      {user.skillsOffered.map(
+                                        (skill, index) => (
+                                          <Box
+                                            key={index}
+                                            sx={{
+                                              backgroundColor: "primary.main2",
+                                              color: "primary.dark",
+                                              px: 1.5,
+                                              py: 0.5,
+                                              borderRadius: "12px",
+                                              fontSize: "0.7rem",
+                                              fontWeight: 500,
+                                            }}
+                                          >
+                                            {skill}
+                                          </Box>
+                                        )
+                                      )}
+                                    </Box>
+                                  </Box>
+                                )}
+
+                                {/* Optional: Skills Needed */}
+                                {user.skillsNeeded && (
+                                  <Box>
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                      sx={{ mb: 1, display: "block" }}
+                                    >
+                                      Skills Needed
+                                    </Typography>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 0.5,
+                                      }}
+                                    >
+                                      {user.skillsNeeded.map((skill, index) => (
+                                        <Box
+                                          key={index}
+                                          sx={{
+                                            border: "1px solid",
+                                            borderColor: "primary.main",
+                                            color: "primary.main",
+                                            px: 1.5,
+                                            py: 0.5,
+                                            borderRadius: "12px",
+                                            fontSize: "0.7rem",
+                                            fontWeight: 500,
+                                          }}
+                                        >
+                                          {skill}
+                                        </Box>
+                                      ))}
+                                    </Box>
+                                  </Box>
+                                )}
+                              </Stack>
+                            </Box>
+
+                            {/* Actions */}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: { xs: "row", md: "column" },
+                                gap: 1,
+                                justifyContent: { md: "center" },
+                              }}
+                            >
+                              <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<Handshake />}
+                                sx={{ flex: { xs: 1, md: "none" } }}
+                              >
+                                Request Trade
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                startIcon={<Chat />}
+                                sx={{ flex: { xs: 1, md: "none" } }}
+                              >
+                                Message
+                              </Button>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </Stack>
                 )}
               </Box>

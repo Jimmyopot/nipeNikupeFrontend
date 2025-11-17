@@ -85,7 +85,14 @@ export function Navbar() {
           {navLinks.map((link) => (
             <Button
               key={link.href}
-              href={link.href}
+              onClick={(e) => {
+                e.preventDefault(); // prevent default anchor behavior
+                const id = link.href.replace("#", ""); // remove '#' to get the id
+                const element = document.getElementById(id);
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               sx={{
                 color: "text.primary",
                 textTransform: "none",
@@ -97,6 +104,22 @@ export function Navbar() {
               {link.label}
             </Button>
           ))}
+
+          {/* {navLinks.map((link) => (
+            <Button
+              key={link.href}
+              href={link.href}
+              sx={{
+                color: "text.primary",
+                textTransform: "none",
+                fontWeight: 500,
+                "&:hover": { color: "primary.main" },
+              }}
+              variant="text"
+            >
+              {link.label}
+            </Button>
+          ))} */}
         </Box>
 
         {/* CTA Button */}
