@@ -17,7 +17,7 @@ import UpdateProfilePopup from './UpdateProfilePopup';
 const Profile = () => {
   const [open, setOpen] = useState(false);
 
-    const { user } = useSelector((state) => state.LoginReducer);
+    const { user } = useSelector((state) => state.AuthReducer);
 
     const handleClickOpen = () => {
       setOpen(true);

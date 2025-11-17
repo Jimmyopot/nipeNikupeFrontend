@@ -80,3 +80,22 @@ export const searchUsersBySkillAndCountyAction = createAsyncThunk(
     }
   }
 );
+
+export const getSuggestedMatchesAction = createAsyncThunk(
+  "common/getSuggestedMatches",
+  async ({ userId, limit, county }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${config.apiUrl}users/GetSuggestedMatches/${userId}`,
+        {
+          params: { limit, county },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch suggested matches"
+      );
+    }
+  }
+);

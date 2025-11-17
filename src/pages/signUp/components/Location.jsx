@@ -44,44 +44,60 @@ const Location = ({ currentStep, formData, setFormData, errors, setErrors }) => 
       {currentStep === 2 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* COUNTRY DROPDOWN */}
-          <FormControl
-            fullWidth
-            sx={{ bgcolor: "#E5F4E4", borderRadius: 2 }}
-            error={!!errors.country}
-          >
-            <InputLabel>Select your country</InputLabel>
-            <Select
-              value={formData?.country}
-              label="Select your country"
-              onChange={(e) => {
-                const selectedCountry = e.target.value;
+          <Autocomplete
+            value={formData?.country || null}
+            onChange={(event, newValue) => {
+              const selectedCountry = newValue || "";
 
-                setFormData({
-                  ...formData,
-                  country: selectedCountry,
-                  cityOrTown: "", // reset when switching countries
-                  localityOrArea: "",
-                });
+              setFormData({
+                ...formData,
+                country: selectedCountry,
+                cityOrTown: "", // reset when switching countries
+                localityOrArea: "",
+              });
 
-                if (errors.country && selectedCountry) {
-                  setErrors({ ...errors, country: "" });
-                }
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>
-                {/* Select your country */}
-              </MenuItem>
-              {countries.map((country) => (
-                <MenuItem key={country} value={country}>
-                  {country}
-                </MenuItem>
-              ))}
-            </Select>
-            {errors.country && (
-              <FormHelperText>{errors.country}</FormHelperText>
+              if (errors.country && selectedCountry) {
+                setErrors({ ...errors, country: "" });
+              }
+            }}
+            options={countries}
+            getOptionLabel={(option) => option}
+            filterOptions={(options, { inputValue }) => {
+              if (!inputValue) return options;
+
+              const searchTerm = inputValue.toLowerCase();
+              return options.filter((option) =>
+                option.toLowerCase().includes(searchTerm)
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select your country"
+                placeholder="Search country... (e.g., Kenya)"
+                error={!!errors.country}
+                helperText={errors.country}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "#E5F4E4",
+                  },
+                }}
+              />
             )}
-          </FormControl>
+            renderOption={(props, option) => (
+              <li {...props} key={option}>
+                {option}
+              </li>
+            )}
+            noOptionsText="No countries found"
+            isOptionEqualToValue={(option, value) => option === value}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                bgcolor: "#E5F4E4",
+                borderRadius: 2,
+              },
+            }}
+          />
 
           {/* COUNTY DROPDOWN - SHOW ONLY IF KENYA */}
           {isKenyaSelected && (
