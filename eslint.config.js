@@ -22,7 +22,33 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Error detection rules
+      'no-unused-vars': ['warn', { 
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true 
+      }],
+      'no-undef': 'error',
+      'no-unreachable': 'error',
+      'no-console': 'warn',
+      'no-debugger': 'warn',
+      'no-alert': 'warn',
+      
+      // React specific rules
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      
+      // Code quality rules
+      'eqeqeq': ['warn', 'smart'],
+      'no-duplicate-imports': 'error',
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      'no-irregular-whitespace': 'error',
+      'no-mixed-spaces-and-tabs': 'error',
+      
+      // Best practices
+      'prefer-const': 'warn',
+      'no-var': 'warn',
+      'object-shorthand': 'warn',
     },
   },
 ]

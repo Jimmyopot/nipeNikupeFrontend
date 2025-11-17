@@ -43,6 +43,7 @@ import {
   getAllUsersAction,
 } from "../../../common/state/CommonActions";
 import { CATEGORY_ICONS } from "../../../common/CategoryIcons";
+import MessageChat from "./MessageChat";
 
 // Mock user matches data
 const mockUsers = [
@@ -111,6 +112,8 @@ export default function Dashboard() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSkills, setFilteredSkills] = useState([]);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const searchInputRef = useRef(null);
@@ -126,7 +129,7 @@ export default function Dashboard() {
     searchUsersBySkillAndCounty,
     searchUsersBySkillAndCountyResp,
     getAllUsers,
-    getAllUsersResp
+    getAllUsersResp,
   } = useSelector((state) => state.CommonReducer);
 
   console.log("Authenticated User:", user);
@@ -161,9 +164,9 @@ export default function Dashboard() {
     setTimeout(() => {
       if (searchResultsRef.current) {
         searchResultsRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
         });
       }
     }, 300); // Small delay to ensure the search state updates
@@ -283,6 +286,19 @@ export default function Dashboard() {
       .join("")
       .toUpperCase();
   };
+
+  // CHAT DRAWER
+  const toggleDrawer =
+    (value, user = null) =>
+    () => {
+      setOpenDrawer(value);
+      if (value && user) {
+        setSelectedUser(user);
+      } else if (!value) {
+        // Don't clear selectedUser when closing, keep it for reopen
+        // setSelectedUser(null);
+      }
+    };
 
   return (
     <Box
@@ -977,7 +993,7 @@ export default function Dashboard() {
                             </Box>
 
                             {/* Actions */}
-                            <Box
+                            {/* <Box
                               sx={{
                                 display: "flex",
                                 flexDirection: { xs: "row", md: "column" },
@@ -998,10 +1014,49 @@ export default function Dashboard() {
                                 size="small"
                                 startIcon={<Chat />}
                                 sx={{ flex: { xs: 1, md: "none" } }}
+                                onClick={toggleDrawer(true)}
                               >
                                 Message
                               </Button>
-                            </Box>
+                            </Box> */}
+                            <Stack
+                              direction={{ xs: "column", md: "column" }} // column on mobile, row on desktop
+                              spacing={1}
+                              alignItems="center" // centers when row
+                              // sx={{ mt: 1 }}
+                            >
+                              <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<Handshake />}
+                                onClick={() => {
+                                  /* request trade logic */
+                                }}
+                                sx={{
+                                  width: "100%",
+                                  // width: { xs: "100%", md: 220 }, // full width on mobile, fixed on desktop
+                                  // height: 72, // keep your desired height
+                                  textTransform: "none",
+                                }}
+                              >
+                                Request Trade
+                              </Button>
+
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                startIcon={<Chat />}
+                                onClick={toggleDrawer(true, user)}
+                                sx={{
+                                  width: "100%",
+                                  // width: { xs: "100%", md: 140 }, // full width on mobile, fixed on desktop
+                                  // height: 72,
+                                  textTransform: "none",
+                                }}
+                              >
+                                Message
+                              </Button>
+                            </Stack>
                           </Box>
                         </CardContent>
                       </Card>
@@ -1013,6 +1068,12 @@ export default function Dashboard() {
           </Box>
         </Container>
       </Box>
+
+      <MessageChat
+        open={openDrawer}
+        toggleDrawer={toggleDrawer}
+        selectedUser={selectedUser}
+      />
     </Box>
   );
 }
