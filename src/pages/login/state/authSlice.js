@@ -25,7 +25,6 @@
 //       state.authLoading = false;
 //       state.isAuthenticated = false;
 //     },
-    
 
 //     clearAuthObj: () => {
 //       return { ...initialState };
@@ -50,8 +49,6 @@
 // export const { logout, clearAuthObj } = authSlice.actions;
 // export default authSlice.reducer;
 
-
-
 import { config } from "../../../utils/config";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -73,13 +70,27 @@ const initialState = {
   user: getUserFromLocalStorage(), // Load user from localStorage on initialization
 };
 
-export const login = createAsyncThunk("authSlice/login", async (data) => {
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  const res = await axios
-    .post(`${config.apiUrl}account/Login`, data)
-    .then((res) => res.data);
-  return res;
-});
+export const login = createAsyncThunk(
+  "authSlice/login",
+  async (data, { rejectWithValue }) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const res = await axios.post(`${config.apiUrl}account/Login`, data);
+
+      // Check if the response indicates failure
+      if (res.data?.success === false) {
+        return rejectWithValue(res.data);
+      }
+
+      return res.data;
+    } catch (error) {
+      // Handle network errors or HTTP error status codes
+      const errorMessage =
+        error.response?.data?.message || error.message || "Login failed";
+      return rejectWithValue({ success: false, message: errorMessage });
+    }
+  }
+);
 
 export const authSlice = createSlice({
   name: "auth",

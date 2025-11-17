@@ -169,13 +169,7 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
   const getToken = () => {
     // First try Redux state, then localStorage with correct key
     const token = authState.token || localStorage.getItem("authToken");
-    console.log("Auth state:", {
-      isAuthenticated: authState.isAuthenticated,
-      hasTokenInRedux: !!authState.token,
-      hasTokenInStorage: !!localStorage.getItem("authToken"),
-      userId: myUserId,
-      selectedUser: selectedUser?.name || "None",
-    });
+
     return token;
   };
 
@@ -209,7 +203,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
   // Create stable handlers using useCallback to prevent unnecessary SignalR reconnections
   const handleReceiveMessage = useCallback(
     (msg) => {
-      console.log("SignalR ReceiveMessage event:", msg);
       const mapped = mapServerMessage(msg);
       if (!mapped) return;
 
@@ -220,14 +213,12 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
         : msg.senderId === chatPartner.id || msg.receiverId === myUserId;
 
       if (isRelevantMessage) {
-        console.log("Adding received message to chat:", mapped);
         setMessages((prev) => {
           // Check if message already exists to prevent duplicates
           const exists = prev.some(
             (m) => m.id === mapped.id || m.raw?.id === msg.id
           );
           if (exists) {
-            console.log("Message already exists, skipping");
             return prev;
           }
           return [...prev, mapped];
@@ -238,7 +229,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
   );
 
   const handleMessageSent = useCallback((msg) => {
-    console.log("SignalR MessageSent event:", msg);
     const mapped = mapServerMessage(msg);
     if (!mapped) return;
 
@@ -246,7 +236,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
     setMessages((prev) =>
       prev.map((m) => {
         if (m.id && m.id.startsWith("temp-")) {
-          console.log("Replacing optimistic message with server message");
           return mapped;
         }
         return m;
@@ -255,15 +244,12 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
   }, []);
 
   const handleConnected = useCallback(() => {
-    console.log("SignalR Connected successfully");
   }, []);
 
   const handleDisconnected = useCallback((err) => {
-    console.log("SignalR Disconnected:", err);
   }, []);
 
   const handleReconnected = useCallback(async () => {
-    console.log("SignalR Reconnected, refetching history");
     try {
       if (currentSessionId) {
         await fetchHistory({ sessionId: currentSessionId });
@@ -377,9 +363,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       else if (withUserId)
         url += `?withUserId=${encodeURIComponent(withUserId)}`;
 
-      console.log("Fetching history from:", url);
-      console.log("Using token:", token ? "Yes" : "No");
-
       const res = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
@@ -397,9 +380,7 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       }
 
       const data = await res.json();
-      console.log("Fetched chat history:", data);
       const mapped = (data || []).map(mapServerMessage).filter(Boolean);
-      console.log("Mapped messages:", mapped);
       setMessages(mapped);
     } catch (err) {
       console.error("Failed to fetch chat history", err);
@@ -427,13 +408,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       return;
     }
 
-    console.log("Sending message:", {
-      from: myUserId,
-      to: chatPartner.id,
-      text,
-      hasToken: !!token,
-    });
-
     // optimistic UI
     const optimistic = {
       id: `temp-${Date.now()}`,
@@ -456,15 +430,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
           skillExchangeSessionId: currentSessionId,
         };
 
-        console.log("Sending to:", sendUrl);
-        console.log("Payload:", payload);
-        console.log("Headers:", {
-          "Content-Type": "application/json",
-          Authorization: token
-            ? `Bearer ${token.substring(0, 20)}...`
-            : "No token",
-        });
-
         const response = await fetch(sendUrl, {
           method: "POST",
           headers: {
@@ -473,12 +438,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
           },
           body: JSON.stringify(payload),
         });
-
-        console.log("Response status:", response.status);
-        console.log(
-          "Response headers:",
-          Object.fromEntries(response.headers.entries())
-        );
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -504,7 +463,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
         }
 
         const result = await response.json();
-        console.log("Message sent successfully:", result);
 
         // Replace optimistic message with real message from server
         setMessages((prev) =>

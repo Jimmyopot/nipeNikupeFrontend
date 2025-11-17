@@ -9,11 +9,6 @@ export function setupTestAuth() {
   // Get this token from your login API or from Postman after successful login
   // localStorage.setItem("token", "your-jwt-token-here");
 
-  console.log(
-    "Test auth setup complete. User ID:",
-    localStorage.getItem("userId")
-  );
-  console.log("Token present:", !!localStorage.getItem("token"));
 }
 
 // Call this function in your browser console or add it to your app startup
@@ -22,25 +17,17 @@ export function setupTestAuth() {
 export function clearAuth() {
   localStorage.removeItem("userId");
   localStorage.removeItem("token");
-  console.log("Auth cleared");
 }
 
 export function checkAuthStatus() {
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  console.log("=== Auth Status ===");
-  console.log("User ID:", userId);
-  console.log("Token present:", !!token);
-  console.log("Token length:", token?.length || 0);
-
   if (token) {
     try {
       // Try to decode JWT payload (just for debugging)
       const payload = JSON.parse(atob(token.split(".")[1]));
-      console.log("Token payload:", payload);
     } catch (e) {
-      console.log("Could not decode token");
     }
   }
 }

@@ -149,16 +149,9 @@ export default function NipeNikupeRegistration() {
           email: formData.email,
           phoneNumber: formData.phoneNumber,
           onSuccess: (response) => {
-            console.log("✅ User is unique:", response);
             resolve(response);
           },
           onFailure: ({ message, errorData, status }) => {
-            console.log("❌ User uniqueness check failed:", {
-              message,
-              errorData,
-              status,
-            });
-
             // Set specific error messages based on conflicts
             let newErrors = {};
             if (errorData?.emailConflict) {
@@ -196,10 +189,8 @@ export default function NipeNikupeRegistration() {
         await checkUserUniqueness();
 
         // If we get here, user is unique, proceed to next step
-        console.log("✅ User uniqueness verified, proceeding to next step");
       } catch (error) {
         // User is not unique, errors have been set, don't proceed
-        console.log("❌ Cannot proceed - user is not unique");
         return;
       }
     }
@@ -293,13 +284,10 @@ export default function NipeNikupeRegistration() {
       availableTime: formData.availableTime,
     };
 
-    console.log("📦 Submitting payload:", payload);
-
     dispatch(
       signupAction({
         formData: payload,
         onSuccess: (resp) => {
-          console.log("✅ Signup success:", resp);
           showSnackbar(
             "Registration successful! Please log in waiting for you...",
             "success"

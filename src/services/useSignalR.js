@@ -26,13 +26,10 @@ export default function useSignalR({
 
     // if already connected, skip
     if (connectionRef.current) {
-      console.log("SignalR already connected");
       return connectionRef.current;
     }
 
     const token = getAccessToken ? getAccessToken() : null;
-    console.log("Starting SignalR connection to:", hubUrl);
-    console.log("Using token:", token ? "Present" : "Missing");
 
     const conn = new signalR.HubConnectionBuilder()
       .withUrl(
@@ -49,39 +46,34 @@ export default function useSignalR({
 
     // wire handlers using ref to get latest handlers
     conn.on("ReceiveMessage", (message) => {
-      console.log("SignalR ReceiveMessage:", message);
       handlersRef.current.onReceiveMessage?.(message);
     });
 
     conn.on("MessageSent", (message) => {
-      console.log("SignalR MessageSent:", message);
+      handlersRef.current.onMessageSent?.(message);
       handlersRef.current.onMessageSent?.(message);
     });
 
     conn.on("MessageRead", (payload) => {
-      console.log("SignalR MessageRead:", payload);
       handlersRef.current.onMessageRead?.(payload);
     });
 
     conn.on("Typing", (payload) => {
-      console.log("SignalR Typing:", payload);
+      handlersRef.current.onTyping?.(payload);
       handlersRef.current.onTyping?.(payload);
     });
 
     conn.onreconnecting((error) => {
-      console.log("SignalR reconnecting:", error);
       setConnectionState("reconnecting");
       handlersRef.current.onReconnecting?.(error);
     });
 
     conn.onreconnected((connectionId) => {
-      console.log("SignalR reconnected:", connectionId);
       setConnectionState("connected");
       handlersRef.current.onReconnected?.(connectionId);
     });
 
     conn.onclose((err) => {
-      console.log("SignalR connection closed:", err);
       setConnectionState("disconnected");
       handlersRef.current.onDisconnected?.(err);
     });
@@ -90,10 +82,6 @@ export default function useSignalR({
       await conn.start();
       connectionRef.current = conn;
       setConnectionState("connected");
-      console.log(
-        "SignalR connected successfully. Connection ID:",
-        conn.connectionId
-      );
       handlersRef.current.onConnected?.();
       return conn;
     } catch (err) {

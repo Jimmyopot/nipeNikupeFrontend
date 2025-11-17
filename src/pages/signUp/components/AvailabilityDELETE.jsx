@@ -583,7 +583,6 @@ const Availability = ({
     setErrors({ ...errors, availability: "" });
 
     // You can add navigation logic here or show success message
-    console.log('Availability saved:', selectedSlots);
     alert(`Successfully saved ${selectedSlots.length} time slot${selectedSlots.length > 1 ? 's' : ''}!`);
   };
 

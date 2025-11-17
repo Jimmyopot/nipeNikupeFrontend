@@ -28,7 +28,6 @@ function App() {
  
 if (loc.pathname === "/") {
  
-  console.log("----------Logging out due to home navigation---------");
   localStorage.clear();
 }
 

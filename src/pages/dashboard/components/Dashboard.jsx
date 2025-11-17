@@ -127,8 +127,6 @@ export default function Dashboard() {
     getAllUsersResp,
   } = useSelector((state) => state.CommonReducer);
 
-  console.log("Authenticated User:", user);
-
   // Transform API data to match component structure
   const SKILLS_DATABASE = getSkillsGroupedByCategoryResp || {};
 

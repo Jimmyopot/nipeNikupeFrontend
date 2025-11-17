@@ -44,8 +44,6 @@ const Skills = (props) => {
     (state) => state.CommonReducer
   );
 
-  // console.log("Skills Data44444444444:", getSkillsGroupedByCategoryResp);
-
   // Category icons mapping
   // const CATEGORY_ICONS = {
   //   AfricanMarket: "🌍",
