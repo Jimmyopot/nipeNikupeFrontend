@@ -51,7 +51,6 @@ export default function useSignalR({
 
     conn.on("MessageSent", (message) => {
       handlersRef.current.onMessageSent?.(message);
-      handlersRef.current.onMessageSent?.(message);
     });
 
     conn.on("MessageRead", (payload) => {
@@ -59,7 +58,6 @@ export default function useSignalR({
     });
 
     conn.on("Typing", (payload) => {
-      handlersRef.current.onTyping?.(payload);
       handlersRef.current.onTyping?.(payload);
     });
 

@@ -4,12 +4,10 @@ import {
   Drawer,
   Avatar,
   AppBar,
-  Toolbar,
-  List,
-  ListItem,
   Paper,
   Typography,
-  Divider,
+  List,
+  ListItem,
   IconButton,
   Button,
   Stack,
@@ -33,62 +31,6 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import useSignalR from "../../../services/useSignalR";
 import { config } from "../../../utils/config";
-
-const currentUser = {
-  id: "current-user",
-  fullName: "Jane Doe",
-  profilePicture: "/professional-woman-smiling.png",
-};
-
-const chatPartner = {
-  id: "35fa2db2-5cab-4a10-9da8-bc267f72ec03", // Use GUID format to match backend
-  name: "John Kamau",
-  location: "Nairobi, Kilimani",
-  profilePicture: "/professional-man-smiling.png",
-  skillsOffered: ["Plumbing", "Electrical Work"],
-  skillsNeeded: ["Web Development", "Digital Marketing"],
-  rating: 4.8,
-  completedTrades: 12,
-  isOnline: true,
-};
-
-const mockMessages = [
-  {
-    id: 1,
-    sender: "partner",
-    text: "Hi Jane! I saw your profile and think we could make a great match. I need web development help for my business website.",
-    timestamp: new Date(Date.now() - 3600000),
-    read: true,
-  },
-  {
-    id: 2,
-    sender: "current",
-    text: "Hi John! That's great. I'd love to help with your website. What kind of site are you looking for?",
-    timestamp: new Date(Date.now() - 3300000),
-    read: true,
-  },
-  {
-    id: 3,
-    sender: "partner",
-    text: "I need an e-commerce site for my plumbing supplies. I can offer plumbing repairs or electrical work in exchange for your web dev services.",
-    timestamp: new Date(Date.now() - 3000000),
-    read: true,
-  },
-  {
-    id: 4,
-    sender: "current",
-    text: "That sounds perfect! I actually need some electrical work done at my office. Would that work for you?",
-    timestamp: new Date(Date.now() - 2700000),
-    read: true,
-  },
-  {
-    id: 5,
-    sender: "partner",
-    text: "Let's formalize this. Should we create a trade request?",
-    timestamp: new Date(Date.now() - 2400000),
-    read: true,
-  },
-];
 
 function getInitials(name) {
   return name
@@ -116,30 +58,21 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Create chatPartner from selectedUser prop or use fallback
-  const chatPartner = selectedUser
-    ? {
-        id: selectedUser.userId || selectedUser.id, // Try userId first, then fall back to id
-        name: selectedUser.name || selectedUser.fullName,
-        location: selectedUser.location || `${selectedUser.cityOrTown}, ${selectedUser.country || "Kenya"}`,
-        profilePicture: selectedUser.profilePicture,
-        skillsOffered: selectedUser.skillsOffered || [],
-        skillsNeeded: selectedUser.skillsNeeded || [],
-        rating: selectedUser.rating || 0,
-        completedTrades: selectedUser.completedTrades || 0,
-        isOnline: true, // Default to online for now
-      }
-    : {
-        id: "35fa2db2-5cab-4a10-9da8-bc267f72ec03",
-        name: "Select a user",
-        location: "No location",
-        profilePicture: "/default-avatar.png",
-        skillsOffered: [],
-        skillsNeeded: [],
-        rating: 0,
-        completedTrades: 0,
-        isOnline: false,
-      };
+  // Create chatPartner from selectedUser prop - STABLE reference using useMemo
+  const chatPartner = useMemo(() => {
+    if (!selectedUser) return null;
+    return {
+      id: selectedUser.userId || selectedUser.id,
+      name: selectedUser.name || selectedUser.fullName,
+      location: selectedUser.location || `${selectedUser.cityOrTown}, ${selectedUser.country || "Kenya"}`,
+      profilePicture: selectedUser.profilePicture,
+      skillsOffered: selectedUser.skillsOffered || [],
+      skillsNeeded: selectedUser.skillsNeeded || [],
+      rating: selectedUser.rating || 0,
+      completedTrades: selectedUser.completedTrades || 0,
+      isOnline: true,
+    };
+  }, [selectedUser]);
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -151,27 +84,26 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
   });
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  // session awareness - default to null (direct chat)
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // Get auth state from Redux
   const authState = useSelector((state) => state.LoginReducer);
 
-  // derive user id & token from Redux state or localStorage fallback
-  // Use the actual user ID from auth state, which should be a GUID
-  const myUserId =
-    authState.user?.userId ||
-    authState.user?.id ||
-    localStorage.getItem("userId") ||
-    "2952da01-2354-4f24-87d1-9481e11f6a77";
+  // STABLE user ID - use useMemo to prevent recalculation
+  const myUserId = useMemo(() => {
+    return (
+      authState.user?.userId ||
+      authState.user?.id ||
+      localStorage.getItem("userId") ||
+      "2952da01-2354-4f24-87d1-9481e11f6a77"
+    );
+  }, [authState.user?.userId, authState.user?.id]);
 
-  const getToken = () => {
-    // First try Redux state, then localStorage with correct key
-    const token = authState.token || localStorage.getItem("authToken");
-
-    return token;
-  };
+  // STABLE token getter - use useCallback
+  const getToken = useCallback(() => {
+    return authState.token || localStorage.getItem("authToken");
+  }, [authState.token]);
 
   // Early return if drawer is open but no user is selected
   if (open && !selectedUser) {
@@ -194,15 +126,78 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
     );
   }
 
-  // Backend API configuration
-  // const backendUrl =
-  //   import.meta.env.VITE_BACKEND_URL || "http://localhost:5043";
-  // const hubUrl =
-  //   import.meta.env.VITE_SIGNALR_HUB_URL || `${backendUrl}/hubs/chat`;
+  // Map server message to client format - STABLE with proper dependencies
+  const mapServerMessage = useCallback(
+    (msg) => {
+      if (!msg) return null;
+      const id = msg.id || msg.Id || msg.messageId || `${Date.now()}`;
+      const senderId = msg.senderId || msg.SenderId || msg.sender || null;
+      const receiverId = msg.receiverId || msg.ReceiverId || msg.receiver || null;
+      const text = msg.text || msg.Text || msg.message || "";
+      const timestamp =
+        msg.timestampUtc ||
+        msg.TimestampUtc ||
+        msg.timestamp ||
+        new Date().toISOString();
+      const isRead =
+        typeof msg.isRead !== "undefined" ? msg.isRead : msg.IsRead || false;
 
-  // Create stable handlers using useCallback to prevent unnecessary SignalR reconnections
+      return {
+        id,
+        sender: senderId === myUserId ? "current" : "partner",
+        text,
+        timestamp: new Date(timestamp),
+        read: !!isRead,
+        raw: msg,
+      };
+    },
+    [myUserId]
+  );
+
+  // CRITICAL FIX: Fetch history with proper dependencies
+  const fetchHistory = useCallback(
+    async ({ sessionId = null, withUserId = null } = {}) => {
+      try {
+        setIsLoadingHistory(true);
+        const token = getToken();
+        let url = `${config.VITE_BACKEND_URL}/api/chat/history`;
+        if (sessionId) url += `?sessionId=${encodeURIComponent(sessionId)}`;
+        else if (withUserId)
+          url += `?withUserId=${encodeURIComponent(withUserId)}`;
+
+        console.log("Fetching history from:", url);
+
+        const res = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error(`History request failed: ${res.status}`, errorText);
+          throw new Error(`History request failed: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("History data received:", data);
+        const mapped = (data || []).map(mapServerMessage).filter(Boolean);
+        setMessages(mapped);
+      } catch (err) {
+        console.error("Failed to fetch chat history", err);
+        setMessages([]);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    },
+    [getToken, mapServerMessage] // Only depend on stable functions
+  );
+
+  // Create stable handlers
   const handleReceiveMessage = useCallback(
     (msg) => {
+      console.log("Handler: ReceiveMessage called", msg);
       const mapped = mapServerMessage(msg);
       if (!mapped) return;
 
@@ -210,56 +205,74 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       const isRelevantMessage = currentSessionId
         ? (msg.skillExchangeSessionId || msg.SkillExchangeSessionId) ===
           currentSessionId
-        : msg.senderId === chatPartner.id || msg.receiverId === myUserId;
+        : msg.senderId === chatPartner?.id || msg.receiverId === myUserId;
+
+      console.log("Is relevant message:", isRelevantMessage, {
+        currentSessionId,
+        msgSessionId: msg.skillExchangeSessionId || msg.SkillExchangeSessionId,
+        msgSenderId: msg.senderId,
+        chatPartnerId: chatPartner?.id,
+        myUserId,
+      });
 
       if (isRelevantMessage) {
         setMessages((prev) => {
-          // Check if message already exists to prevent duplicates
           const exists = prev.some(
             (m) => m.id === mapped.id || m.raw?.id === msg.id
           );
           if (exists) {
+            console.log("Message already exists, skipping");
             return prev;
           }
+          console.log("Adding new message to state");
           return [...prev, mapped];
         });
       }
     },
-    [currentSessionId, chatPartner.id, myUserId]
+    [currentSessionId, chatPartner?.id, myUserId, mapServerMessage]
   );
 
-  const handleMessageSent = useCallback((msg) => {
-    const mapped = mapServerMessage(msg);
-    if (!mapped) return;
+  const handleMessageSent = useCallback(
+    (msg) => {
+      console.log("Handler: MessageSent called", msg);
+      const mapped = mapServerMessage(msg);
+      if (!mapped) return;
 
-    // Replace optimistic message with real message from server
-    setMessages((prev) =>
-      prev.map((m) => {
-        if (m.id && m.id.startsWith("temp-")) {
-          return mapped;
-        }
-        return m;
-      })
-    );
-  }, []);
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m.id && m.id.startsWith("temp-")) {
+            return mapped;
+          }
+          return m;
+        })
+      );
+    },
+    [mapServerMessage]
+  );
 
   const handleConnected = useCallback(() => {
+    console.log("Handler: Connected");
   }, []);
 
   const handleDisconnected = useCallback((err) => {
+    console.log("Handler: Disconnected", err);
   }, []);
 
-  const handleReconnected = useCallback(async () => {
-    try {
-      if (currentSessionId) {
-        await fetchHistory({ sessionId: currentSessionId });
-      } else {
-        await fetchHistory({ withUserId: chatPartner.id });
+  const handleReconnected = useCallback(
+    async (connectionId) => {
+      console.log("Handler: Reconnected - refetching history", connectionId);
+      try {
+        if (currentSessionId) {
+          await fetchHistory({ sessionId: currentSessionId });
+        } else if (chatPartner?.id) {
+          await fetchHistory({ withUserId: chatPartner.id });
+        }
+      } catch (err) {
+        console.error("Failed to refetch history on reconnect:", err);
       }
-    } catch (err) {
-      console.error("Failed to refetch history on reconnect:", err);
-    }
-  }, [currentSessionId, chatPartner.id]);
+    },
+    [currentSessionId, chatPartner?.id, fetchHistory] // Now fetchHistory is stable
+  );
 
   const signalRHandlers = useMemo(
     () => ({
@@ -292,202 +305,163 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
     handlers: signalRHandlers,
   });
 
-  // Fetch chat history on component mount
+  // CRITICAL FIX: Use chatPartner.id as dependency instead of chatPartner object
+  // This prevents re-running when chatPartner object reference changes
   useEffect(() => {
+    if (!open || !chatPartner?.id) return;
+
+    let mounted = true;
+    let isInitialized = false; // Prevent double initialization
+
     (async () => {
+      if (isInitialized) return;
+      isInitialized = true;
+
       try {
-        // Always fetch history first, regardless of SignalR status
+        console.log("Starting SignalR connection...");
+        await start();
+
+        if (!mounted) return;
+
+        // Join session if present
+        if (currentSessionId) {
+          console.log("Joining session:", currentSessionId);
+          await joinSession(currentSessionId);
+        }
+
+        // Now fetch history after SignalR is connected
+        console.log("Fetching chat history...");
         if (currentSessionId) {
           await fetchHistory({ sessionId: currentSessionId });
         } else {
           await fetchHistory({ withUserId: chatPartner.id });
         }
       } catch (err) {
-        console.warn("Failed to fetch initial chat history:", err);
-      }
-    })();
-  }, [currentSessionId]);
-
-  // start SignalR on mount
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        await start();
-        // join session if present
-        if (currentSessionId) {
-          await joinSession(currentSessionId);
-        }
-      } catch (err) {
-        console.warn("SignalR start error:", err);
+        console.error("Setup error:", err);
       }
     })();
 
     return () => {
       mounted = false;
+      console.log("Cleanup: stopping SignalR");
       stop?.();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [start, stop, currentSessionId]);
+  }, [
+    open,
+    chatPartner?.id, // ONLY depend on the ID, not the whole object
+    currentSessionId,
+    start,
+    stop,
+    joinSession,
+    fetchHistory,
+  ]);
 
-  // map server -> client message shape
-  function mapServerMessage(msg) {
-    if (!msg) return null;
-    const id = msg.id || msg.Id || msg.messageId || `${Date.now()}`;
-    const senderId = msg.senderId || msg.SenderId || msg.sender || null;
-    const receiverId = msg.receiverId || msg.ReceiverId || msg.receiver || null;
-    const text = msg.text || msg.Text || msg.message || "";
-    const timestamp =
-      msg.timestampUtc ||
-      msg.TimestampUtc ||
-      msg.timestamp ||
-      new Date().toISOString();
-    const isRead =
-      typeof msg.isRead !== "undefined" ? msg.isRead : msg.IsRead || false;
-    return {
-      id,
-      sender: senderId === myUserId ? "current" : "partner",
-      text,
-      timestamp: new Date(timestamp),
-      read: !!isRead,
-      raw: msg,
-    };
-  }
-
-  async function fetchHistory({ sessionId = null, withUserId = null } = {}) {
-    try {
-      setIsLoadingHistory(true);
-      const token = getToken();
-      let url = `${config.VITE_BACKEND_URL}/api/chat/history`;
-      if (sessionId) url += `?sessionId=${encodeURIComponent(sessionId)}`;
-      else if (withUserId)
-        url += `?withUserId=${encodeURIComponent(withUserId)}`;
-
-      const res = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error(
-          `History request failed: ${res.status} ${res.statusText}`,
-          errorText
-        );
-        throw new Error(`History request failed: ${res.status}`);
-      }
-
-      const data = await res.json();
-      const mapped = (data || []).map(mapServerMessage).filter(Boolean);
-      setMessages(mapped);
-    } catch (err) {
-      console.error("Failed to fetch chat history", err);
-      // Keep empty array on error instead of showing mock data
-      setMessages([]);
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  }
-
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = (e) => {
-    e?.preventDefault();
-    if (!newMessage.trim()) return;
+  const handleSendMessage = useCallback(
+    (e) => {
+      e?.preventDefault();
+      if (!newMessage.trim()) return;
 
-    const text = newMessage.trim();
-    const token = getToken();
+      const text = newMessage.trim();
+      const token = getToken();
 
-    // Check if user is authenticated
-    if (!token) {
-      alert("You must be logged in to send messages. Please login first.");
-      return;
-    }
+      if (!token) {
+        alert("You must be logged in to send messages. Please login first.");
+        return;
+      }
 
-    // optimistic UI
-    const optimistic = {
-      id: `temp-${Date.now()}`,
-      sender: "current",
-      text,
-      timestamp: new Date(),
-      read: false,
-    };
-    setMessages((prev) => [...prev, optimistic]);
-    setNewMessage("");
-    inputRef.current?.focus();
+      // Optimistic UI
+      const optimistic = {
+        id: `temp-${Date.now()}`,
+        sender: "current",
+        text,
+        timestamp: new Date(),
+        read: false,
+      };
+      setMessages((prev) => [...prev, optimistic]);
+      setNewMessage("");
+      inputRef.current?.focus();
 
-    (async () => {
-      try {
-        // Primary: Send via REST API (as it saves to database)
-        const sendUrl = `${config.VITE_BACKEND_URL}/api/chat/send`;
-        const payload = {
-          receiverId: chatPartner.id,
-          text: text,
-          skillExchangeSessionId: currentSessionId,
-        };
+      (async () => {
+        try {
+          console.log("Sending message via REST API...");
+          const sendUrl = `${config.VITE_BACKEND_URL}/api/chat/send`;
+          const payload = {
+            receiverId: chatPartner.id,
+            text: text,
+            skillExchangeSessionId: currentSessionId,
+          };
 
-        const response = await fetch(sendUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
+          const response = await fetch(sendUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(
-            `Send API failed: ${response.status} ${response.statusText}`
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Send API failed: ${response.status}`, errorText);
+
+            setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+
+            if (response.status === 401) {
+              alert("Authentication failed. Please login again.");
+            } else if (response.status === 400) {
+              alert("Invalid message data. Please try again.");
+            } else {
+              alert(
+                `Failed to send message: ${response.status} ${response.statusText}`
+              );
+            }
+            throw new Error(`Send API failed: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log("Message sent successfully:", result);
+
+          // Replace optimistic message with real message
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === optimistic.id ? mapServerMessage(result) : m
+            )
           );
-          console.error("Error details:", errorText);
 
-          // Remove optimistic message on failure
-          setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
-
-          // Show user-friendly error
-          if (response.status === 401) {
-            alert("Authentication failed. Please login again.");
-          } else if (response.status === 400) {
-            alert("Invalid message data. Please try again.");
-          } else {
-            alert(
-              `Failed to send message: ${response.status} ${response.statusText}`
+          // Also send via SignalR for real-time delivery
+          try {
+            await signalrSendMessage(chatPartner.id, text, currentSessionId);
+            console.log("Message sent via SignalR");
+          } catch (signalRError) {
+            console.warn(
+              "SignalR send failed (message still saved):",
+              signalRError
             );
           }
-          throw new Error(`Send API failed: ${response.status}`);
+        } catch (err) {
+          console.error("Send failed:", err);
         }
+      })();
+    },
+    [
+      newMessage,
+      getToken,
+      chatPartner?.id,
+      currentSessionId,
+      mapServerMessage,
+      signalrSendMessage,
+    ]
+  );
 
-        const result = await response.json();
-
-        // Replace optimistic message with real message from server
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === optimistic.id ? mapServerMessage(result) : m
-          )
-        );
-
-        // Secondary: Also send via SignalR for real-time notification
-        try {
-          await signalrSendMessage(chatPartner.id, text, currentSessionId);
-        } catch (signalRError) {
-          console.warn(
-            "SignalR send failed (message still saved):",
-            signalRError
-          );
-        }
-      } catch (err) {
-        console.error("Send failed:", err);
-      }
-    })();
-  };
-
-  // mark inbound unread messages as read when visible
+  // Mark unread messages as read
   useEffect(() => {
+    if (!markAsRead || messages.length === 0) return;
+
     (async () => {
       try {
         const unreadIds = messages
@@ -500,7 +474,9 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
           )
           .map((m) => m.id || m.raw.id || m.raw.Id)
           .filter(Boolean);
-        if (unreadIds.length && markAsRead) {
+
+        if (unreadIds.length > 0) {
+          console.log("Marking messages as read:", unreadIds);
           await markAsRead(unreadIds);
           setMessages((prev) =>
             prev.map((m) =>
@@ -509,23 +485,21 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
           );
         }
       } catch (e) {
-        // ignore
+        console.error("Failed to mark messages as read:", e);
       }
     })();
   }, [messages, markAsRead, myUserId]);
 
-  const handleSendTradeRequest = () => {
+  const handleSendTradeRequest = useCallback(() => {
     if (!tradeForm.skillOffering || !tradeForm.skillRequesting) {
       alert("Please select both skills");
       return;
     }
 
     const tradeMessage = {
-      id: messages.length + 1,
+      id: `trade-${Date.now()}`,
       sender: "current",
-      text: `📋 Trade Request: I'm offering "${
-        tradeForm.skillOffering
-      }" in exchange for "${tradeForm.skillRequesting}". ${
+      text: `📋 Trade Request: I'm offering "${tradeForm.skillOffering}" in exchange for "${tradeForm.skillRequesting}". ${
         tradeForm.message ? `Message: ${tradeForm.message}` : ""
       }`,
       timestamp: new Date(),
@@ -537,7 +511,9 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
     setIsTradeModalOpen(false);
     setTradeForm({ skillOffering: "", skillRequesting: "", message: "" });
     inputRef.current?.focus();
-  };
+  }, [tradeForm]);
+
+  if (!chatPartner) return null;
 
   return (
     <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
@@ -557,40 +533,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
           elevation={1}
           sx={{ bgcolor: "background.paper" }}
         >
-          {/* <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <IconButton
-              edge="start"
-              aria-label="back to dashboard"
-              onClick={() => {
-                toggleDrawer(false)();
-                // window.location.href = "/dashboard";
-              }}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Avatar sx={{ bgcolor: "primary.light" }}>
-                {getInitials(chatPartner.name)}
-              </Avatar>
-              <Box sx={{ textAlign: "left" }}>
-                <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600 }}>
-                  {chatPartner.name}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color={
-                    chatPartner.isOnline ? "success.main" : "text.secondary"
-                  }
-                >
-                  {chatPartner.isOnline ? "Online" : "Offline"}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ width: 56 }} />
-          </Toolbar> */}
-
           <Paper variant="outlined" square sx={{ p: 2, borderRadius: 0 }}>
             <Box
               sx={{
@@ -600,14 +542,7 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
                 flexWrap: "wrap",
               }}
             >
-              <IconButton
-                edge="start"
-                aria-label="back to dashboard"
-                onClick={() => {
-                  toggleDrawer(false)();
-                  // window.location.href = "/dashboard";
-                }}
-              >
+              <IconButton edge="start" onClick={toggleDrawer(false)}>
                 <ArrowBackIcon />
               </IconButton>
               <Avatar sx={{ width: 48, height: 48, bgcolor: "primary.light" }}>
@@ -638,53 +573,18 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
             </Box>
           </Paper>
         </AppBar>
-        {/* Chat Info */}
-        {/* <Paper variant="outlined" square sx={{ p: 2, borderRadius: 0 }}>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <Avatar sx={{ width: 48, height: 48, bgcolor: "primary.light" }}>
-              {getInitials(chatPartner.name)}
-            </Avatar>
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {chatPartner.name}
-                </Typography>
-                <Chip label={`★ ${chatPartner.rating}`} size="small" />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                📍 {chatPartner.location}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {chatPartner.completedTrades} trades completed
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsTradeModalOpen(true)}
-              startIcon={<EmojiEmotionsIcon />}
-            >
-              Request Trade
-            </Button>
-          </Box>
-        </Paper> */}
-        {/* Debug Panel (remove in production) */}
+
+        {/* Debug Panel */}
         {process.env.NODE_ENV === "development" && (
           <Paper sx={{ m: 1, p: 1, bgcolor: "grey.100" }}>
             <Typography variant="caption" display="block">
               Debug: User ID: {myUserId} | Token:{" "}
               {getToken() ? "Present" : "Missing"} | Connection:{" "}
-              {connectionState}
+              {connectionState} | Messages: {messages.length}
             </Typography>
           </Paper>
         )}
+
         {/* Messages area */}
         <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
           {isLoadingHistory ? (
@@ -727,7 +627,6 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
                   >
                     <Box
                       sx={{
-                        // Make bubble size to content but limit maximum width for readability
                         width: "auto",
                         maxWidth: { xs: "85%", sm: "70%", md: 600 },
                       }}
@@ -740,14 +639,10 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
                           color: isCurrent
                             ? "primary.contrastText"
                             : "text.primary",
-                          // prevent overflow with long words
                           wordBreak: "break-word",
                         }}
                       >
-                        <Typography
-                          variant="body2"
-                          sx={{ whiteSpace: "pre-wrap" }}
-                        >
+                        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
                           {message.text}
                         </Typography>
                       </Paper>
@@ -775,7 +670,8 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
               <div ref={messagesEndRef} />
             </List>
           )}
-        </Box>{" "}
+        </Box>
+
         {/* Input */}
         <Box
           component="form"
@@ -810,6 +706,7 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
             </Button>
           </Stack>
         </Box>
+
         {/* Trade Dialog */}
         <Dialog
           open={isTradeModalOpen}
@@ -823,11 +720,8 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
               Formalize your skill exchange with {chatPartner.name}
             </Typography>
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel id="skill-offering-label">
-                Skill I'm Offering
-              </InputLabel>
+              <InputLabel>Skill I'm Offering</InputLabel>
               <Select
-                labelId="skill-offering-label"
                 value={tradeForm.skillOffering}
                 label="Skill I'm Offering"
                 onChange={(e) =>
@@ -842,9 +736,8 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
             </FormControl>
 
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel id="skill-requesting-label">Skill I Want</InputLabel>
+              <InputLabel>Skill I Want</InputLabel>
               <Select
-                labelId="skill-requesting-label"
                 value={tradeForm.skillRequesting}
                 label="Skill I Want"
                 onChange={(e) =>
