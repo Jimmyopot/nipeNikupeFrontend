@@ -108,7 +108,7 @@ export function AboutSection() {
                 style={{
                   width: "100%",
                   height: "100%",
-                  // objectFit: "cover", // ✅ fills the box proportionally
+                  objectFit: "cover", // ✅ fills the box proportionally
                   borderRadius: "inherit", // matches parent rounded corners
                 }}
               />

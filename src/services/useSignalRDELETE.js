@@ -24,29 +24,9 @@ export default function useSignalR({
   const start = useCallback(async () => {
     if (!hubUrl) throw new Error("hubUrl is required for useSignalR");
 
-    // CRITICAL FIX: Check if already connected or connecting
+    // if already connected, skip
     if (connectionRef.current) {
-      const state = connectionRef.current.state;
-      if (state === signalR.HubConnectionState.Connected) {
-        console.log("SignalR already connected, reusing connection");
-        return connectionRef.current;
-      }
-      if (state === signalR.HubConnectionState.Connecting) {
-        console.log("SignalR connection in progress, waiting...");
-        // Wait for existing connection attempt
-        return new Promise((resolve) => {
-          const checkInterval = setInterval(() => {
-            if (connectionRef.current?.state === signalR.HubConnectionState.Connected) {
-              clearInterval(checkInterval);
-              resolve(connectionRef.current);
-            }
-          }, 100);
-          setTimeout(() => {
-            clearInterval(checkInterval);
-            resolve(connectionRef.current);
-          }, 5000); // 5 second timeout
-        });
-      }
+      return connectionRef.current;
     }
 
     const token = getAccessToken ? getAccessToken() : null;

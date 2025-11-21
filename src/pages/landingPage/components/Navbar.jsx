@@ -14,7 +14,8 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { useNavigate } from "react-router-dom";
-
+import { clearAuthObj } from "../../login/state/authSlice.js"; 
+import { useDispatch } from "react-redux";
 
 const navLinks = [
   { label: "Home", href: "#home" },
@@ -25,6 +26,7 @@ const navLinks = [
 ];
 
 export function Navbar() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -33,6 +35,7 @@ export function Navbar() {
   };
 
   const goToLogin = () => {
+    dispatch(clearAuthObj());
     navigate("/login");
   };
 

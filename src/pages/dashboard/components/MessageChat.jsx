@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Box,
   Drawer,
@@ -142,9 +141,14 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       const isRead =
         typeof msg.isRead !== "undefined" ? msg.isRead : msg.IsRead || false;
 
+      // CRITICAL FIX: Properly identify sender by comparing GUIDs
+      const isMySender = String(senderId).toLowerCase() === String(myUserId).toLowerCase();
+
       return {
         id,
-        sender: senderId === myUserId ? "current" : "partner",
+        sender: isMySender ? "current" : "partner",
+        senderId,
+        receiverId,
         text,
         timestamp: new Date(timestamp),
         read: !!isRead,
@@ -201,27 +205,34 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       const mapped = mapServerMessage(msg);
       if (!mapped) return;
 
-      // Check if this message is relevant to current chat
+      // CRITICAL FIX: Better relevance check with proper GUID comparison
+      const msgSenderId = String(msg.senderId || msg.SenderId || '').toLowerCase();
+      const msgReceiverId = String(msg.receiverId || msg.ReceiverId || '').toLowerCase();
+      const myUserIdLower = String(myUserId).toLowerCase();
+      const chatPartnerIdLower = String(chatPartner?.id || '').toLowerCase();
+
       const isRelevantMessage = currentSessionId
-        ? (msg.skillExchangeSessionId || msg.SkillExchangeSessionId) ===
-          currentSessionId
-        : msg.senderId === chatPartner?.id || msg.receiverId === myUserId;
+        ? String(msg.skillExchangeSessionId || msg.SkillExchangeSessionId || '').toLowerCase() === String(currentSessionId).toLowerCase()
+        : (msgSenderId === chatPartnerIdLower && msgReceiverId === myUserIdLower) ||
+          (msgSenderId === myUserIdLower && msgReceiverId === chatPartnerIdLower);
 
       console.log("Is relevant message:", isRelevantMessage, {
-        currentSessionId,
-        msgSessionId: msg.skillExchangeSessionId || msg.SkillExchangeSessionId,
-        msgSenderId: msg.senderId,
-        chatPartnerId: chatPartner?.id,
-        myUserId,
+        msgSenderId,
+        msgReceiverId,
+        myUserId: myUserIdLower,
+        chatPartnerId: chatPartnerIdLower,
       });
 
       if (isRelevantMessage) {
         setMessages((prev) => {
+          // CRITICAL FIX: Check duplicates more thoroughly
+          const msgId = String(mapped.id).toLowerCase();
           const exists = prev.some(
-            (m) => m.id === mapped.id || m.raw?.id === msg.id
+            (m) => String(m.id).toLowerCase() === msgId ||
+                   (m.raw?.id && String(m.raw.id).toLowerCase() === msgId)
           );
           if (exists) {
-            console.log("Message already exists, skipping");
+            console.log("Message already exists, skipping duplicate");
             return prev;
           }
           console.log("Adding new message to state");
@@ -238,14 +249,21 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       const mapped = mapServerMessage(msg);
       if (!mapped) return;
 
-      setMessages((prev) =>
-        prev.map((m) => {
-          if (m.id && m.id.startsWith("temp-")) {
+      setMessages((prev) => {
+        // Replace the first pending/temp message with the real one
+        let replaced = false;
+        const updated = prev.map((m) => {
+          if (!replaced && m.isPending && m.text === mapped.text) {
+            replaced = true;
             return mapped;
           }
           return m;
-        })
-      );
+        });
+        
+        // If we didn't replace any optimistic message, don't add it
+        // (it will come via ReceiveMessage for the sender too)
+        return updated;
+      });
     },
     [mapServerMessage]
   );
@@ -375,12 +393,16 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       }
 
       // Optimistic UI
+      const optimisticId = `temp-${Date.now()}-${Math.random()}`;
       const optimistic = {
-        id: `temp-${Date.now()}`,
+        id: optimisticId,
         sender: "current",
+        senderId: myUserId,
+        receiverId: chatPartner.id,
         text,
         timestamp: new Date(),
         read: false,
+        isPending: true,
       };
       setMessages((prev) => [...prev, optimistic]);
       setNewMessage("");
@@ -388,63 +410,25 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
 
       (async () => {
         try {
-          console.log("Sending message via REST API...");
-          const sendUrl = `${config.VITE_BACKEND_URL}/api/chat/send`;
-          const payload = {
-            receiverId: chatPartner.id,
-            text: text,
-            skillExchangeSessionId: currentSessionId,
-          };
+          // CRITICAL FIX: Send ONLY via SignalR to avoid duplicates
+          // SignalR will persist to DB and broadcast to receiver
+          console.log("Sending message via SignalR...");
+          await signalrSendMessage(chatPartner.id, text, currentSessionId);
+          console.log("Message sent successfully via SignalR");
 
-          const response = await fetch(sendUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Send API failed: ${response.status}`, errorText);
-
-            setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
-
-            if (response.status === 401) {
-              alert("Authentication failed. Please login again.");
-            } else if (response.status === 400) {
-              alert("Invalid message data. Please try again.");
-            } else {
-              alert(
-                `Failed to send message: ${response.status} ${response.statusText}`
-              );
-            }
-            throw new Error(`Send API failed: ${response.status}`);
-          }
-
-          const result = await response.json();
-          console.log("Message sent successfully:", result);
-
-          // Replace optimistic message with real message
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === optimistic.id ? mapServerMessage(result) : m
-            )
-          );
-
-          // Also send via SignalR for real-time delivery
-          try {
-            await signalrSendMessage(chatPartner.id, text, currentSessionId);
-            console.log("Message sent via SignalR");
-          } catch (signalRError) {
-            console.warn(
-              "SignalR send failed (message still saved):",
-              signalRError
-            );
-          }
+          // The MessageSent event will replace the optimistic message
+          // with the real one from the server
         } catch (err) {
           console.error("Send failed:", err);
+          
+          // Remove optimistic message on error
+          setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+          
+          if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
+            alert("Authentication failed. Please login again.");
+          } else {
+            alert(`Failed to send message: ${err.message || 'Unknown error'}`);
+          }
         }
       })();
     },
@@ -453,7 +437,7 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
       getToken,
       chatPartner?.id,
       currentSessionId,
-      mapServerMessage,
+      myUserId,
       signalrSendMessage,
     ]
   );
@@ -691,10 +675,18 @@ export default function MessageChat({ open, toggleDrawer, selectedUser }) {
               inputRef={inputRef}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage(e);
+                }
+              }}
               placeholder="Type your message..."
               variant="outlined"
               size="small"
               fullWidth
+              autoComplete="off"
+              spellCheck="true"
             />
             <Button
               type="submit"
